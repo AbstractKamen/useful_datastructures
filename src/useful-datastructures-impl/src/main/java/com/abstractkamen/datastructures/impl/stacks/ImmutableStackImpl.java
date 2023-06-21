@@ -2,7 +2,8 @@ package com.abstractkamen.datastructures.impl.stacks;
 
 import com.abstractkamen.datastructures.api.stacks.ImmutableStack;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 public class ImmutableStackImpl<T> implements ImmutableStack<T> {
 

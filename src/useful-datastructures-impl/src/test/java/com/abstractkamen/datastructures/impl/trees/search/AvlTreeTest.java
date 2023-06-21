@@ -1,8 +1,13 @@
 package com.abstractkamen.datastructures.impl.trees.search;
 
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import static org.junit.Assert.*;
@@ -14,6 +19,31 @@ public class AvlTreeTest {
     public void init() {
         tree = new AvlTree<>();
     }
+
+    @Test(expected = ClassCastException.class)
+    public void add_shouldThrow_whenNotComparable() {
+        final AvlTree<Object> objects = new AvlTree<>();
+        objects.add(new Object());
+    }
+
+    @Test(expected = ClassCastException.class)
+    public void remove_shouldThrow_whenNotComparable() {
+        final AvlTree<Object> objects = new AvlTree<>();
+        objects.remove(new Object());
+    }
+
+    @Test(expected = ClassCastException.class)
+    public void contains_shouldThrow_whenNotComparable() {
+        final AvlTree<Object> objects = new AvlTree<>();
+        objects.contains(new Object());
+    }
+
+    @Test(expected = ClassCastException.class)
+    public void containsCount_shouldThrow_whenNotComparable() {
+        final AvlTree<Object> objects = new AvlTree<>();
+        objects.containsCount(new Object());
+    }
+
 
     @Test
     public void testMax() {
@@ -134,19 +164,26 @@ public class AvlTreeTest {
     public void testHeight() {
         assertEquals(-1, tree.height());
         System.out.println(tree.prettyString());
-        tree.add(10); System.out.println(tree.prettyString());
+        tree.add(10);
+        System.out.println(tree.prettyString());
         assertEquals(0, tree.height());
-        tree.add(5); System.out.println(tree.prettyString());
+        tree.add(5);
+        System.out.println(tree.prettyString());
         assertEquals(1, tree.height());
-        tree.add(15); System.out.println(tree.prettyString());
+        tree.add(15);
+        System.out.println(tree.prettyString());
         assertEquals(1, tree.height());
-        tree.add(3); System.out.println(tree.prettyString());
+        tree.add(3);
+        System.out.println(tree.prettyString());
         assertEquals(2, tree.height());
-        tree.add(7); System.out.println(tree.prettyString());
+        tree.add(7);
+        System.out.println(tree.prettyString());
         assertEquals(2, tree.height());
-        tree.add(13); System.out.println(tree.prettyString());
+        tree.add(13);
+        System.out.println(tree.prettyString());
         assertEquals(2, tree.height());
-        tree.add(17); System.out.println(tree.prettyString());
+        tree.add(17);
+        System.out.println(tree.prettyString());
         assertEquals(2, tree.height());
     }
 
@@ -266,24 +303,24 @@ public class AvlTreeTest {
         tree.add(4);
         tree.add(5);
         final Iterator<Integer> it = tree.descendingIterator();
-        final Supplier<String> printer = () -> {
+        final Consumer<Object> printer = o -> {
             final String before = tree.toString();
             final int i = it.next();
             final int size = tree.size();
             it.remove();
             assertEquals(size - 1, tree.size());
             assertFalse(tree.contains(i));
-            return String.format("%s - [%d] -> %s%n%s", before, i, tree, tree.prettyString());
+            System.out.println(String.format("%s - [%d] -> %s%n%s", before, i, tree, tree.prettyString()));
         };
-        printer.get();
+        printer.accept(null);
         assertEquals(2, tree.height());
-        printer.get();
+        printer.accept(null);
         assertEquals(1, tree.height());
-        printer.get();
+        printer.accept(null);
         assertEquals(1, tree.height());
-        printer.get();
+        printer.accept(null);
         assertEquals(0, tree.height());
-        printer.get();
+        printer.accept(null);
         assertEquals(-1, tree.height());
     }
 

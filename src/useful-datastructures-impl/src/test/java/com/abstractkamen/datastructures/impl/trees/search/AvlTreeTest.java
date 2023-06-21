@@ -384,6 +384,7 @@ public class AvlTreeTest {
         assertEquals(0, tree.height());
         printer.get();
         assertEquals(-1, tree.height());
+
     }
 
     @Test(expected = NoSuchElementException.class)

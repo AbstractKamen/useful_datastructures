@@ -24,5 +24,8 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         cache: maven
+        
     - name: Build with Maven
       run: mvn -B clean site site:stage scm-publish:publish-scm --file useful_datastructures/pom.xml
+      env:
+        GITHUB_TOKEN: ${{ github.token }}

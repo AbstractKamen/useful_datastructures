@@ -85,7 +85,7 @@
                     <artifactId>maven-scm-publish-plugin</artifactId>
                     <version>3.2.1</version>
                     <configuration>
-                        <scmBranch>main</scmBranch>
+                        <scmBranch>gh-pages</scmBranch>
                     </configuration>
                 </plugin>
 

@@ -30,11 +30,11 @@
         </dependency>
     </dependencies>
 
-    <distributionManagement>
+    <repositories>
         <repository>
             <id>github</id>
             <name>Useful DataStructures snapshots</name>
             <url>https://maven.pkg.github.com/AbstractKamen/useful_datastructures/</url>
         </repository>
-    </distributionManagement>
+    </repositories>
 </project>

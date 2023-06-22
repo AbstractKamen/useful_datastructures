@@ -23,10 +23,8 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
-        server-id: github
-        settings-path: ${{ github.workspace }}
         
     - name: Deploy with Maven
-      run: mvn -B -X clean site site:stage scm-publish:publish-scm -s $GITHUB_WORKSPACE/settings.xml --file useful_datastructures/pom.xml
+      run: mvn -B clean site site:stage scm-publish:publish-scm -s $GITHUB_WORKSPACE/settings.xml --file useful_datastructures/pom.xml
       env:
         GITHUB_TOKEN: ${{ github.token }}

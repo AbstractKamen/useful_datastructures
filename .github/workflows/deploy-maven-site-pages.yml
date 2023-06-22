@@ -23,6 +23,8 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
+        server-id: github
+        settings-path: ${{ github.workspace }}
         
     - name: Deploy with Maven
       run: mvn -B clean site site:stage scm-publish:publish-scm --file useful_datastructures/pom.xml

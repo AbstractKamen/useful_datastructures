@@ -105,7 +105,7 @@
 
         <site>
             <id>github</id>
-            <url>https://github.com/AbstractKamen/useful_datastructures.git</url>
+            <url>scm:https://github.com/AbstractKamen/useful_datastructures.git</url>
         </site>
 
         <repository>

@@ -104,7 +104,7 @@
 
         <site>
             <id>github</id>
-            <url>${project.scm.developerConnection}</url>
+            <url>https://abstractkamen.github.io/useful_datastructures/</url>
         </site>
 
         <repository>

@@ -28,4 +28,4 @@ jobs:
         distribution: 'temurin'
         cache: maven
     - name: Build with Maven
-      run: mvn -B clean site site:stage scm-publish:publish-scm --file pom.xml
+      run: mvn -B clean site site:stage scm-publish:publish-scm --file useful_datastructures\pom.xml

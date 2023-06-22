@@ -10,6 +10,7 @@
     <packaging>pom</packaging>
     <name>Useful Datastructures</name>
     <url>https://github.com/AbstractKamen/useful_datastructures/</url>
+    <description>A Maven generated site published to GitHub pages.</description>
 
     <properties>
         <maven.compiler.source>15</maven.compiler.source>

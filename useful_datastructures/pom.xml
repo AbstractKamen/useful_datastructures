@@ -57,7 +57,7 @@
 
                 <plugin>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.1.1</version>
+                    <version>1.1.1</version>
                 </plugin>
 
                 <plugin>
@@ -100,11 +100,7 @@
             </plugin>
         </plugins>
     </build>
-    <scm>
-        <connection>https://github.com/AbstractKamen/useful_datastructures.git</connection>
-        <developerConnection>https://github.com/AbstractKamen/useful_datastructures.git</developerConnection>
-        <url>https://github.com/AbstractKamen/useful_datastructures.git</url>
-    </scm>
+
     <distributionManagement>
 
         <site>

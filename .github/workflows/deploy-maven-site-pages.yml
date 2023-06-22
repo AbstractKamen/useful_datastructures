@@ -23,8 +23,12 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
-        
+        cache: 'maven'
+    - name: Set up Maven settings for site deployment
+      uses: bernardo-mg/maven-site-deployment-settings-action@v1
+      with:
+        username: ${{ secrets.username }}
+        password: ${{ secrets.password }}
+        siteUrl: ${{ secrets.url }}   
     - name: Deploy with Maven
       run: mvn -B -X clean site site:stage scm-publish:publish-scm --file useful_datastructures/pom.xml
-      env:
-        GITHUB_TOKEN: ${{ github.token }}

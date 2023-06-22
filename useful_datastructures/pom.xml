@@ -84,7 +84,6 @@
                     <version>3.2.1</version>
                     <configuration>
                         <scmBranch>main</scmBranch>
-                        <pubScmUrl>${project.scm.developerConnection}</pubScmUrl>
                     </configuration>
                 </plugin>
 

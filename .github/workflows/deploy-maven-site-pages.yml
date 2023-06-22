@@ -25,6 +25,6 @@ jobs:
         distribution: 'temurin'
         
     - name: Deploy with Maven
-      run: mvn -B clean site site:stage scm-publish:publish-scm -s $GITHUB_WORKSPACE/settings.xml --file useful_datastructures/pom.xml
+      run: mvn -B clean site site:stage scm-publish:publish-scm --file useful_datastructures/pom.xml
       env:
         GITHUB_TOKEN: ${{ github.token }}

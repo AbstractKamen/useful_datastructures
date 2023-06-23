@@ -8,6 +8,9 @@
     <artifactId>useful-datastructures</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
+
+    <name>Useful Datastructures</name>
+    <url>https://abstractkamen.github.io/useful_datastructures/</url>
     <description>A Maven generated site published to GitHub pages.</description>
 
     <properties>
@@ -104,8 +107,7 @@
         <site>
             <id>site</id>
             <name>Project Documentation Site</name>
-            <!--suppress UnresolvedMavenProperty -->
-            <url>${site.url}</url>
+            <url>https://abstractkamen.github.io/useful_datastructures/</url>
         </site>
 
         <repository>

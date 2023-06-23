@@ -88,6 +88,8 @@
                     <configuration>
                         <serverId>github</serverId>
                         <scmBranch>gh-pages</scmBranch>
+                        <!--suppress UnresolvedMavenProperty -->
+                        <pubScmUrl>${env.URL}</pubScmUrl>
                     </configuration>
                 </plugin>
 

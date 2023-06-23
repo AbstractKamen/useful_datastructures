@@ -25,10 +25,13 @@ jobs:
         distribution: 'temurin'
         server-id: github
         settings-path: ${{ github.workspace }}
+    - uses: oleksiyrudenko/gha-git-credentials@v2.1.1
+      with:
+        global: true
+        name: 'GitHub Action'
+        actor: '${{ secrets.USERNAME }}'
+        token: '${{ secrets.PASSWORD }}'
     - name: Deploy with Maven
       run: mvn -B -s $GITHUB_WORKSPACE/settings.xml clean site site:stage scm-publish:publish-scm --file useful_datastructures/pom.xml
       env:
-        GITHUB_TOKEN: ${{ github.token }}
         URL: ${{ secrets.URL }}
-        PASSWORD: ${{ secrets.PASSWORD }}
-        USERNAME: ${{ secrets.USERNAME }}

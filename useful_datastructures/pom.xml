@@ -103,8 +103,8 @@
     </build>
 
     <scm>
-        <connection>scm:git:ssh://git@github.com:AbstractKamen/useful_datastructures.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com:AbstractKamen/useful_datastructures.git</developerConnection>
+        <connection>scm:git:ssh://git@github.com|AbstractKamen/useful_datastructures.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com|AbstractKamen/useful_datastructures.git</developerConnection>
     </scm>
 
     <distributionManagement>

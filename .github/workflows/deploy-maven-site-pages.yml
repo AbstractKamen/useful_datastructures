@@ -15,6 +15,7 @@ jobs:
   deploy:
 
     runs-on: ubuntu-latest
+    permissions: read-all|write-all
 
     steps:
     - uses: actions/checkout@v3

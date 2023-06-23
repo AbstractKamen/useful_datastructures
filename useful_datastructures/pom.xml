@@ -87,7 +87,6 @@
                     <version>3.2.1</version>
                     <configuration>
                         <scmBranch>gh-pages</scmBranch>
-                        <pubScmUrl>scm:git@github.com:AbstractKamen/useful_datastructures.git</pubScmUrl>
                     </configuration>
                 </plugin>
 
@@ -104,7 +103,8 @@
     </build>
 
     <scm>
-        <developerConnection>scm:git@github.com:AbstractKamen/useful_datastructures.git</developerConnection>
+        <connection>scm:git:ssh://git@github.com:AbstractKamen/useful_datastructures.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com:AbstractKamen/useful_datastructures.git</developerConnection>
     </scm>
 
     <distributionManagement>

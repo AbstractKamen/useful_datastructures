@@ -36,6 +36,6 @@ jobs:
         siteUrl: ${{ secrets.URL }}
         siteId: 'github'
     - name: Deploy with Maven
-      run: mvn -B -X clean site site:stage scm-publish:publish-scm --file useful_datastructures/pom.xml --settings site_settings.xml
+      run: mvn -B -X --settings site_settings.xml clean site site:stage scm-publish:publish-scm --file useful_datastructures/pom.xml
       env:
         GITHUB_TOKEN: ${{ github.token }}

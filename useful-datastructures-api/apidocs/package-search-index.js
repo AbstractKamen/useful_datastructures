@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"com.abstractkamen.datastructures.api.stacks"},{"l":"com.abstractkamen.datastructures.api.trees.search"}];updateSearchResults();

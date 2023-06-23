@@ -86,6 +86,7 @@
                     <artifactId>maven-scm-publish-plugin</artifactId>
                     <version>3.2.1</version>
                     <configuration>
+                        <serverId>github</serverId>
                         <scmBranch>gh-pages</scmBranch>
                         <!--suppress UnresolvedMavenProperty -->
                         <pubScmUrl>${env.URL}</pubScmUrl>

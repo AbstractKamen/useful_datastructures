@@ -8,6 +8,7 @@
         <artifactId>useful-datastructures</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
+
     <artifactId>useful-datastructures-api</artifactId>
     <version>1.0-SNAPSHOT</version>
 </project>

@@ -14,7 +14,11 @@
     <description>A Maven generated site published to GitHub pages.</description>
 
     <properties>
-        <surefire.plugin.version>3.0.0-M5</surefire.plugin.version>
+        <surefire.plugin.version>3.0.0</surefire.plugin.version>
+        <info.plugin.version>3.2.1</info.plugin.version>
+        <javadoc.plugin.version>3.5.0</javadoc.plugin.version>
+        <junit4.version>4.13.2</junit4.version>
+        <useful-datastructures.api.version>1.0-SNAPSHOT</useful-datastructures.api.version>
     </properties>
 
     <modules>
@@ -22,11 +26,29 @@
         <module>useful-datastructures-impl</module>
     </modules>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit4.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.abstractkamen</groupId>
+                <artifactId>useful-datastructures-api</artifactId>
+                <version>${useful-datastructures.api.version}</version>
+                <scope>compile</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <reporting>
         <plugins>
             <plugin>
                 <artifactId>maven-project-info-reports-plugin</artifactId>
-                <version>3.2.1</version>
+                <version>${info.plugin.version}</version>
             </plugin>
 
             <plugin>
@@ -38,9 +60,8 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.5.0</version>
+                <version>${javadoc.plugin.version}</version>
             </plugin>
-
         </plugins>
     </reporting>
 
@@ -79,19 +100,10 @@
                         <properties>
                             <property>
                                 <name>junit</name>
-                                <value>false</value>
+                                <value>true</value>
                             </property>
                         </properties>
                     </configuration>
-
-                    <dependencies>
-                        <dependency>
-                            <groupId>org.apache.maven.surefire</groupId>
-                            <artifactId>surefire-junit-platform</artifactId>
-                            <version>${surefire.plugin.version}</version>
-                        </dependency>
-                    </dependencies>
-
                 </plugin>
 
                 <plugin>
@@ -116,7 +128,7 @@
 
                 <plugin>
                     <artifactId>maven-project-info-reports-plugin</artifactId>
-                    <version>3.1.2</version>
+                    <version>${info.plugin.version}</version>
                 </plugin>
 
                 <plugin>
@@ -131,16 +143,15 @@
                     </configuration>
                 </plugin>
 
-                <!-- Reports -->
-
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>3.0.1</version>
+                    <version>${javadoc.plugin.version}</version>
                 </plugin>
 
             </plugins>
         </pluginManagement>
+
         <plugins>
             <plugin>
                 <artifactId>maven-site-plugin</artifactId>
@@ -152,7 +163,6 @@
     </build>
 
     <distributionManagement>
-
         <site>
             <id>site</id>
             <name>Project Documentation Site</name>

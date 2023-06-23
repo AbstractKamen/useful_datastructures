@@ -88,6 +88,10 @@
                     <configuration>
                         <scmBranch>gh-pages</scmBranch>
                         <pubScmUrl>scm:git:https://github.com/AbstractKamen/useful_datastructures/</pubScmUrl>
+                        <!--suppress UnresolvedMavenProperty -->
+                        <password>${env.PASSWORD}</password>
+                        <!--suppress UnresolvedMavenProperty -->
+                        <username>${env.USERNAME}</username>
                     </configuration>
                 </plugin>
 

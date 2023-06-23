@@ -23,13 +23,9 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
-    - name: Setup Maven
-      uses: stCarolas/setup-maven@v.4.5
-      with:
-        maven-version: 3.8.7
-        server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
-        settings-path: ${{ github.workspace }} # location for the settings.xml file
+        server-id: github
+        settings-path: ${{ github.workspace }}
     - name: Deploy with Maven
-      run: mvn -B -s $GITHUB_WORKSPACE/settings.xml clean site site:stage scm-publish:publish-scm --file useful_datastructures/pom.xml
+      run: mvn -B clean site site:stage scm-publish:publish-scm --file useful_datastructures/pom.xml -s $GITHUB_WORKSPACE/settings.xml
       env:
         GITHUB_TOKEN: ${{ github.token }}

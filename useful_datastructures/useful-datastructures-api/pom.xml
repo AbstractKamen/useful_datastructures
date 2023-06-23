@@ -11,4 +11,5 @@
 
     <artifactId>useful-datastructures-api</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <description>This module defines the contract for all useful datastructures</description>
 </project>

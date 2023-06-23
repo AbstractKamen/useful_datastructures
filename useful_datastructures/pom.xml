@@ -11,7 +11,23 @@
 
     <name>Useful Datastructures</name>
     <url>https://abstractkamen.github.io/useful_datastructures/</url>
-    <description>A Maven generated site published to GitHub pages.</description>
+    <description>A Maven generated site published to GitHub pages showing off useful datastructures</description>
+    <inceptionYear>2023</inceptionYear>
+    <developers>
+        <developer>
+            <name>Kamen Hristov</name>
+        </developer>
+    </developers>
+    <licenses>
+        <license>
+            <name>MIT</name>
+            <url>https://raw.githubusercontent.com/AbstractKamen/useful_datastructures/aa6290c853c1b783315bda3e5f45b836c322daaf/LICENSE</url>
+            <distribution>repo</distribution>
+            <comments>A short and simple permissive license with conditions only requiring preservation of copyright and license notices.
+                Licensed works, modifications, and larger works may be distributed under different terms and without source code.
+            </comments>
+        </license>
+    </licenses>
 
     <properties>
         <surefire.plugin.version>3.0.0</surefire.plugin.version>

@@ -12,6 +12,7 @@
 
     <artifactId>useful-datastructures-impl</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <description>This module implements the contracts defined by the api</description>
 
     <dependencies>
         <dependency>

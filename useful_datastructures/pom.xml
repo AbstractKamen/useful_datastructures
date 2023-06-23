@@ -87,7 +87,8 @@
                     <version>3.2.1</version>
                     <configuration>
                         <scmBranch>gh-pages</scmBranch>
-                        <pubScmUrl>scm:git:https://github.com/AbstractKamen/useful_datastructures/</pubScmUrl>
+                        <!--suppress UnresolvedMavenProperty -->
+                        <pubScmUrl>${env.URL}</pubScmUrl>
                         <!--suppress UnresolvedMavenProperty -->
                         <password>${env.PASSWORD}</password>
                         <!--suppress UnresolvedMavenProperty -->

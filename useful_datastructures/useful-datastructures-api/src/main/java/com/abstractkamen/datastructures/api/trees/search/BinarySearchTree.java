@@ -47,10 +47,10 @@ public interface BinarySearchTree<T> extends Iterable<T> {
     boolean contains(T item);
 
     /**
-     * Check how many items are equal to <tt>item</tt> there are in the tree.
+     * Check how many items are equal to {@code item} there are in the tree.
      *
      * @param item to check
-     * @return number of items equal to <tt>item</tt>
+     * @return number of items equal to {@code item}
      */
     int containsCount(T item);
 

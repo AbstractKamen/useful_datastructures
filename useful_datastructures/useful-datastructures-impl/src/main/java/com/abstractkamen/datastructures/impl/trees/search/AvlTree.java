@@ -28,10 +28,17 @@ public class AvlTree<T> implements BinarySearchTree<T> {
     private Node<T> root;
     private int size;
 
+    /**
+     * Create an {@code AvlTree<T>} with a custom comparator
+     * @param comparator custom comparator
+     */
     public AvlTree(Comparator<T> comparator) {
         this.comparator = comparator;
     }
 
+    /**
+     * Create an {@code AvlTree<T>} with natural order comparator. {@code T} is expected to be {@code instanceof Comparable<T>}
+     */
     @SuppressWarnings("unchecked")
     public AvlTree() {
         this(Comparator.comparing(t -> ((Comparable<Object>) t)));

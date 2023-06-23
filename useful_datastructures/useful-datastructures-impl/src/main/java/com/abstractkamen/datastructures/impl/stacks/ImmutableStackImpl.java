@@ -5,6 +5,10 @@ import com.abstractkamen.datastructures.api.stacks.ImmutableStack;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+/**
+ * This class is the non-empty implementation.
+ * @param <T> type of element
+ */
 public class ImmutableStackImpl<T> implements ImmutableStack<T> {
 
     @Override

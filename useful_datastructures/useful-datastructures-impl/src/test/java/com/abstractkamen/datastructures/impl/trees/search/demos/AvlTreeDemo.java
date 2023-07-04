@@ -5,6 +5,9 @@ import com.abstractkamen.datastructures.impl.trees.search.AvlTree;
 
 import java.util.*;
 
+/**
+ * Demo class showing AvlTree features and behaviour.
+ */
 public class AvlTreeDemo {
 
     public static void main(String[] args) {

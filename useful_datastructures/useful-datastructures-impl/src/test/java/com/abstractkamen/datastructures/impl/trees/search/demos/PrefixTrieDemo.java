@@ -10,6 +10,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Demo class showing PrefixTrie features and behaviour.
+ */
 public class PrefixTrieDemo {
     public static void main(String[] args) {
         final Collection<String> list = List.of("apple", "apricot", "avocado",

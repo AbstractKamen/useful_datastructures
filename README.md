@@ -8,3 +8,6 @@ some useful datastructure implementations
 ## Trees
 - BinarySearchTree
   - Avl implementation which permits duplicate elements
+ 
+- PrefixTrie
+  - Pretty basic implementation of a Re'trie'val tree. I'm working on a more advanced suffix version.

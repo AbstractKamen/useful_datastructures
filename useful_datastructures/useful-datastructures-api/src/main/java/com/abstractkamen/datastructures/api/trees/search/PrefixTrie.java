@@ -9,7 +9,7 @@ import java.util.Collection;
 public interface PrefixTrie {
 
     /**
-     * Try to found any strings which start with prefix. Matching strings are always in lexicographical order.
+     * Try to find strings which start with prefix. Matching strings are always in lexicographical order.
      *
      * @param prefix to look for
      * @param limit maximum number of found strings

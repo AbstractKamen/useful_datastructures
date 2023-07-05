@@ -42,6 +42,7 @@
     <properties>
         <surefire.plugin.version>3.0.0</surefire.plugin.version>
         <info.plugin.version>3.2.1</info.plugin.version>
+        <jxr.plugin.version>3.3.0</jxr.plugin.version>
         <javadoc.plugin.version>3.5.0</javadoc.plugin.version>
         <junit4.version>4.13.2</junit4.version>
         <useful-datastructures.api.version>1.0-SNAPSHOT</useful-datastructures.api.version>
@@ -74,16 +75,39 @@
         <plugins>
             <plugin>
                 <artifactId>maven-project-info-reports-plugin</artifactId>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-report-plugin</artifactId>
+                <version>${info.plugin.version}</version>
             </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${javadoc.plugin.version}</version>
+                <configuration>
+                    <detectLinks>true</detectLinks>
+                    <includeDependencySources>true</includeDependencySources>
+                    <dependencySourceExcludes>junit</dependencySourceExcludes>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-report-plugin</artifactId>
+                <version>${surefire.plugin.version}</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jxr-plugin</artifactId>
+                <version>${jxr.plugin.version}</version>
+                <reportSets>
+                    <reportSet>
+                        <id>aggregate</id>
+                        <reports>
+                            <report>aggregate</report>
+                            <report>test-aggregate</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
             </plugin>
         </plugins>
     </reporting>
@@ -153,11 +177,6 @@
                 </plugin>
 
                 <plugin>
-                    <artifactId>maven-project-info-reports-plugin</artifactId>
-                    <version>${info.plugin.version}</version>
-                </plugin>
-
-                <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-scm-publish-plugin</artifactId>
                     <version>3.2.1</version>
@@ -168,24 +187,6 @@
                         <pubScmUrl>${env.URL}</pubScmUrl>
                     </configuration>
                 </plugin>
-
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>${javadoc.plugin.version}</version>
-                    <configuration>
-                        <detectLinks>true</detectLinks>
-                        <includeDependencySources>true</includeDependencySources>
-                        <dependencySourceExcludes>junit</dependencySourceExcludes>
-                    </configuration>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-surefire-report-plugin</artifactId>
-                    <version>${surefire.plugin.version}</version>
-                </plugin>
-
             </plugins>
         </pluginManagement>
 

@@ -32,7 +32,11 @@ jobs:
         actor: '${{ secrets.USERNAME }}'
         token: '${{ secrets.PASSWORD }}'
     - name: Deploy with Maven
-      run: mvn -B -s $GITHUB_WORKSPACE/settings.xml clean verify site site:stage scm-publish:publish-scm --file useful_datastructures/pom.xml
+      run: | 
+        mvn -B -s $GITHUB_WORKSPACE/settings.xml \
+        clean verify surefire-report:report -Daggregate=true \
+        site site:stage scm-publish:publish-scm \
+        --file useful_datastructures/pom.xml
       env:
         URL: ${{ secrets.URL }}
         GITHUB_TOKEN: ${{ github.token }}

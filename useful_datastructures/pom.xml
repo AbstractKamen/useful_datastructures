@@ -186,8 +186,6 @@
                     <version>${surefire.plugin.version}</version>
                     <configuration>
                         <aggregate>true</aggregate>
-                        <linkXRef>false</linkXRef>
-                        <outputName>test-reports/ut</outputName>
                     </configuration>
                 </plugin>
 

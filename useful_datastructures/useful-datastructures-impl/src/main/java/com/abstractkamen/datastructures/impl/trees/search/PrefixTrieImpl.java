@@ -3,35 +3,41 @@ package com.abstractkamen.datastructures.impl.trees.search;
 import com.abstractkamen.datastructures.api.trees.search.PrefixTrie;
 
 import java.util.*;
+import java.util.function.BiFunction;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class PrefixTrieImpl implements PrefixTrie {
 
     private static final String LINE_SEPARATOR = System.lineSeparator();
-    private final NaiveTrieNode root;
+    private final PrefixTrieNode root;
     private int completeWords;
     private int size;
 
     public PrefixTrieImpl() {
-        this.root = new NaiveTrieNode();
+        this.root = new PrefixTrieNode();
+    }
+
+    protected PrefixTrieNode getRoot() {
+        return root;
     }
 
     @Override
     public Collection<String> startsWith(String prefix, int limit) {
-        final List<NaiveTrieNode> leaves = new ArrayList<>();
-        search(this.root, prefix, 0, leaves, limit);
+        final List<PrefixTrieNode> leaves = new ArrayList<>();
+        search(this.root, prefix, 0, leaves, limit, l -> true);
         return getWords(leaves);
     }
 
     @Override
     public boolean isPrefix(String substring) {
-        return search(this.root, substring, 0, new ArrayList<>(), 1);
+        return search(this.root, substring, 0, new ArrayList<>(), 1, l -> true);
     }
 
     @Override
     public boolean insert(String string) {
         if (string == null || string.isEmpty()) return false;
-        final NaiveTrieNode inserted = insert(string, this.root, 0);
+        final PrefixTrieNode inserted = insert(string, this.root, 0, PrefixTrieNode::new);
         if (inserted.isWord) {
             // was inserted before
             return false;
@@ -63,8 +69,8 @@ public class PrefixTrieImpl implements PrefixTrie {
 
     @Override
     public boolean contains(String string) {
-        final List<NaiveTrieNode> result = new ArrayList<>();
-        search(this.root, string, 0, result, 1);
+        final List<PrefixTrieNode> result = new ArrayList<>();
+        search(this.root, string, 0, result, 1, l -> true);
         return !result.isEmpty();
     }
 
@@ -82,71 +88,50 @@ public class PrefixTrieImpl implements PrefixTrie {
         }
     }
 
-    private void visitAllNodes(int size, NaiveTrieNode node, String prefix, StringBuilder visitor) {
-        final String pointer = "├─► ";
-        final String hookPointer = "└─► ";
-        final String pointerConnection = "│";
-        // depth-first search
-        // visit current
-        if (node != this.root) {
-            if (size > 1)
-                visitor.append(prefix).append(pointer);
-            else {
-                visitor.append(prefix).append(hookPointer);
-            }
-            visitor.append((char) node.c);
-        }
+    /**
+     * Visit a node which we know is a word.
+     *
+     * @param node word node
+     * @param visitor sb visitor
+     */
+    protected void visitWordNode(PrefixTrieNode node, StringBuilder visitor) {
         // if current is word append the whole word to the current node
-        if (node.isWord) {
-            NaiveTrieNode c = node;
-            visitor.append(": (");
-            final int l = visitor.length();
-            while (c != this.root) {
-                visitor.insert(l, (char) c.c);
-                c = c.parent;
-            }
-            visitor.append(")");
+        PrefixTrieNode c = node;
+        visitor.append(": (");
+        final int l = visitor.length();
+        while (c != this.root) {
+            visitor.insert(l, (char) c.c);
+            c = c.parent;
         }
-        visitor.append(LINE_SEPARATOR);
-        final String nextPrefix;
-        if (node.parent != null && size > 1) {
-            nextPrefix = prefix + pointerConnection + " ".repeat(pointer.length());
-        } else if (node != this.root) {
-            nextPrefix = prefix + " ".repeat(pointer.length());
-        } else {
-            nextPrefix = prefix;
-        }
-        // visit children
-        int s = node.children.size();
-        for (NaiveTrieNode child : node.children.values()) {
-            visitAllNodes(s--, child, nextPrefix, visitor);
-        }
+        visitor.append(")");
     }
 
-    private NaiveTrieNode insert(String word, NaiveTrieNode root, int i) {
+    protected PrefixTrieNode insert(String word, PrefixTrieNode root, int i, BiFunction<Integer, PrefixTrieNode, PrefixTrieNode> factory) {
         if (i == word.length()) {
             return root;
         } else {
             final int c = word.charAt(i);
-            NaiveTrieNode child = root.children.get(c);
+            PrefixTrieNode child = root.children.get(c);
             if (child == null) {
-                child = new NaiveTrieNode(c, root);
+                child = factory.apply(c, root);
                 size++;
                 root.children.put(c, child);
             }
-            return insert(word, child, i + 1);
+            return insert(word, child, i + 1, factory);
         }
     }
 
-    private Collection<String> getWords(List<NaiveTrieNode> leaves) {
-        return leaves.stream().map(l -> {
-            final StringBuilder sb = new StringBuilder();
-            while (l != this.root) {
-                sb.insert(0, (char) l.c);
-                l = l.parent;
-            }
-            return sb.toString();
-        }).collect(Collectors.toList());
+    protected Collection<String> getWords(List<PrefixTrieNode> leaves) {
+        return leaves.stream().map(this::getWord).collect(Collectors.toList());
+    }
+
+    protected String getWord(PrefixTrieNode l) {
+        final StringBuilder sb = new StringBuilder();
+        while (l != this.root) {
+            sb.insert(0, (char) l.c);
+            l = l.parent;
+        }
+        return sb.toString();
     }
 
     /**
@@ -157,9 +142,11 @@ public class PrefixTrieImpl implements PrefixTrie {
      * @param i offset
      * @param result string storage
      * @param resultLimit storage limit
+     * @param resultTest add to result collection if true
      * @return true if a needle path exists
      */
-    private boolean search(NaiveTrieNode n, String needle, int i, Collection<NaiveTrieNode> result, int resultLimit) {
+    protected boolean search(PrefixTrieNode n, String needle, int i, Collection<PrefixTrieNode> result, int resultLimit,
+                             Predicate<PrefixTrieNode> resultTest) {
         if (n == null) {
             // we fell off the tree
             return false;
@@ -167,28 +154,30 @@ public class PrefixTrieImpl implements PrefixTrie {
             //we hit the limit and must return, but we haven't fallen off
             return true;
         }
-        if (n.isWord && i >= needle.length()) {
+        if (n.isWord && i >= needle.length() && resultTest.test(n)) {
             result.add(n);
         }
         if (i >= needle.length()) {
             // assume always hit
-            for (NaiveTrieNode c : n.children.values()) {
-                search(c, needle, i + 1, result, resultLimit);
+            for (PrefixTrieNode c : n.children.values()) {
+                search(c, needle, i + 1, result, resultLimit, resultTest);
             }
             return true;
         } else {
             final int c = needle.charAt(i);
             // go deeper
-            return search(n.children.get(c), needle, i + 1, result, resultLimit);
+            return search(n.children.get(c), needle, i + 1, result, resultLimit, resultTest);
         }
     }
 
-    private boolean delete(NaiveTrieNode n, String word, int i) {
+    protected boolean delete(PrefixTrieNode n, String word, int i) {
         if (n == null || i > word.length()) {
             return false;
         }
         if (n.isWord && i == word.length()) {
-            completeWords--;
+            if (shouldDecrementWord(n)) {
+                completeWords--;
+            }
             if (!n.children.isEmpty()) {
                 n.setIsWord(false);
             } else {
@@ -203,7 +192,50 @@ public class PrefixTrieImpl implements PrefixTrie {
         }
     }
 
-    private void removeNode(NaiveTrieNode parent, int c) {
+    /**
+     * wordCount decrementing condition. Can be overridden in extensions.
+     *
+     * @param n word node
+     * @return true if wordCount should be decremented
+     */
+    protected boolean shouldDecrementWord(PrefixTrieNode n) {
+        return true;
+    }
+
+    private void visitAllNodes(int size, PrefixTrieNode node, String prefix, StringBuilder visitor) {
+        final String pointer = "├─► ";
+        final String hookPointer = "└─► ";
+        final String pointerConnection = "│";
+        // depth-first search
+        // visit current
+        if (node != this.root) {
+            if (size > 1)
+                visitor.append(prefix).append(pointer);
+            else {
+                visitor.append(prefix).append(hookPointer);
+            }
+            visitor.append((char) node.c);
+        }
+        if (node.isWord) {
+            visitWordNode(node, visitor);
+        }
+        visitor.append(LINE_SEPARATOR);
+        final String nextPrefix;
+        if (node.parent != null && size > 1) {
+            nextPrefix = prefix + pointerConnection + " ".repeat(pointer.length());
+        } else if (node != this.root) {
+            nextPrefix = prefix + " ".repeat(pointer.length());
+        } else {
+            nextPrefix = prefix;
+        }
+        // visit children
+        int s = node.children.size();
+        for (PrefixTrieNode child : node.children.values()) {
+            visitAllNodes(s--, child, nextPrefix, visitor);
+        }
+    }
+
+    private void removeNode(PrefixTrieNode parent, int c) {
         if (parent != null) {
             parent.children.remove(c);
             if (parent.children.isEmpty()) {
@@ -213,27 +245,48 @@ public class PrefixTrieImpl implements PrefixTrie {
         }
     }
 
-    private static class NaiveTrieNode {
-        private final Map<Integer, NaiveTrieNode> children;
+    protected static class PrefixTrieNode {
+
+        private final Map<Integer, PrefixTrieNode> children;
         private boolean isWord;
         private int c;
         private int distanceFromRoot;
-        private NaiveTrieNode parent;
+        private PrefixTrieNode parent;
 
-        NaiveTrieNode() {
+        PrefixTrieNode() {
             children = new TreeMap<>();
             this.distanceFromRoot = 1;
         }
 
-        NaiveTrieNode(int c, NaiveTrieNode parent) {
+        PrefixTrieNode(int c, PrefixTrieNode parent) {
             this();
             this.c = c;
             this.parent = parent;
             this.distanceFromRoot = parent.distanceFromRoot + 1;
         }
 
-        void setIsWord(boolean isWord) {
+        protected void setIsWord(boolean isWord) {
             this.isWord = isWord;
+        }
+
+        protected void addChild(int c, PrefixTrieNode child) {
+            this.children.put(c, child);
+        }
+
+        protected void setC(int c) {
+            this.c = c;
+        }
+
+        protected int getC() {
+            return c;
+        }
+
+        protected Map<Integer, PrefixTrieNode> getChildren() {
+            return children;
+        }
+
+        public PrefixTrieNode getParent() {
+            return parent;
         }
     }
 }

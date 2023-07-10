@@ -10,4 +10,6 @@ some useful datastructure implementations
   - Avl implementation which permits duplicate elements
  
 - PrefixTrie
-  - Pretty basic implementation of a Re'trie'val tree. I'm working on a more advanced suffix version.
+  - Pretty basic implementation of a Re'trie'val tree which can match prefixes.
+- SuffixTrie
+  - A simple extension of the PrefixTrie which can also match suffixes at the cost of double the nodes. I'm working on a more advanced version.

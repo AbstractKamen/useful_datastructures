@@ -9,7 +9,7 @@
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <strong class="jxr_keyword">package</strong> com.abstractkamen.datastructures.impl.trees.search.demos;
 <a class="jxr_linenumber" name="L2" href="#L2">2</a>   
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <strong class="jxr_keyword">import</strong> com.abstractkamen.datastructures.api.trees.search.SuffixTrie;
-<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <strong class="jxr_keyword">import</strong> com.abstractkamen.datastructures.impl.trees.search.SuffixTrieImpl;
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <strong class="jxr_keyword">import</strong> com.abstractkamen.datastructures.impl.trees.search.SuffixTrieReverseImpl;
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <strong class="jxr_keyword">import</strong> java.io.BufferedReader;
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> java.io.InputStream;
@@ -26,7 +26,7 @@
 <a class="jxr_linenumber" name="L18" href="#L18">18</a>          <strong class="jxr_keyword">final</strong> Collection&lt;String&gt; list = List.of(<span class="jxr_string">"apple"</span>, <span class="jxr_string">"apricot"</span>, <span class="jxr_string">"avocado"</span>,
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>                                                  <span class="jxr_string">"ant"</span>, <span class="jxr_string">"app"</span>, <span class="jxr_string">"ants"</span>, <span class="jxr_string">"apps"</span>, <span class="jxr_string">"apis"</span>,
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>                                                  <span class="jxr_string">"analyse"</span>, <span class="jxr_string">"alms"</span>, <span class="jxr_string">"alarm"</span>, <span class="jxr_string">"alarms"</span>);
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>          <strong class="jxr_keyword">final</strong> SuffixTrie trie = <strong class="jxr_keyword">new</strong> SuffixTrieImpl();
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>          <strong class="jxr_keyword">final</strong> SuffixTrie trie = <strong class="jxr_keyword">new</strong> SuffixTrieReverseImpl();
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>          list.forEach(trie::insert);
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>          System.out.println(trie);
 <a class="jxr_linenumber" name="L24" href="#L24">24</a>          System.out.println(trie.prettyString());
@@ -35,11 +35,11 @@
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>          startsWithDemo(trie, <span class="jxr_string">"ap"</span>);
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>          startsWithDemo(trie, <span class="jxr_string">"app"</span>);
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>          startsWithDemo(trie, <span class="jxr_string">"apple"</span>);
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>          ensWithDemo(trie, <span class="jxr_string">"s"</span>);
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>          ensWithDemo(trie, <span class="jxr_string">"ms"</span>);
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>          ensWithDemo(trie, <span class="jxr_string">"rms"</span>);
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>          ensWithDemo(trie, <span class="jxr_string">"arm"</span>);
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>          ensWithDemo(trie, <span class="jxr_string">"arms"</span>);
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>          ensWithDemo(trie, <span class="jxr_string">"s"</span>, 4);
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>          ensWithDemo(trie, <span class="jxr_string">"ms"</span>, 4);
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>          ensWithDemo(trie, <span class="jxr_string">"rms"</span>, 4);
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>          ensWithDemo(trie, <span class="jxr_string">"arm"</span>, 4);
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>          ensWithDemo(trie, <span class="jxr_string">"arms"</span>, 4);
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>          deleteDemo(trie, <span class="jxr_string">"appi"</span>);
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>          deleteDemo(trie, <span class="jxr_string">"app"</span>);
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>          startsWithDemo(trie, <span class="jxr_string">"app"</span>);
@@ -61,32 +61,39 @@
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>              assert inputStream != <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>              <strong class="jxr_keyword">final</strong> BufferedReader reader = <strong class="jxr_keyword">new</strong> BufferedReader(<strong class="jxr_keyword">new</strong> InputStreamReader(inputStream));
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>              <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> insertTime = System.currentTimeMillis();
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>              <strong class="jxr_keyword">final</strong> SuffixTrie trie = <strong class="jxr_keyword">new</strong> SuffixTrieImpl();
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>              <strong class="jxr_keyword">final</strong> SuffixTrie trie = <strong class="jxr_keyword">new</strong> SuffixTrieReverseImpl();
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>              reader.lines().flatMap(s -&gt; Arrays.stream(s.split(<span class="jxr_string">"\s"</span>))).forEach(trie::insert);
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>              System.out.printf(<span class="jxr_string">"Shakespeare's Sonnets inserted in %.3fms%n"</span>, (System.currentTimeMillis() - insertTime) / 1000.);
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>              System.out.println(trie.size());
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>              System.out.println(trie.completeWords());
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>              <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> findAvocado = System.nanoTime();
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>              System.out.printf(<span class="jxr_string">"Time it took to check if 'avocado' is present[%s] in Shakespeare's Sonnets %.6fns"</span>,
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>              System.out.printf(<span class="jxr_string">"Time it took to check if 'avocado' is present[%s] in Shakespeare's Sonnets %.6fns%n"</span>,
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>                                trie.isPrefix(<span class="jxr_string">"avocado"</span>), (System.nanoTime() - findAvocado) / 1000_000.);
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>          } <strong class="jxr_keyword">catch</strong> (Exception e) {
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>              e.printStackTrace();
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>          }
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>      }
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>  
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> deleteDemo(SuffixTrie trie, String toDelete) {
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>          <strong class="jxr_keyword">final</strong> String msg = trie.delete(toDelete) ? <span class="jxr_string">"true"</span> : <span class="jxr_string">"false, reason: not present in tree"</span>;
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>          System.out.printf(<span class="jxr_string">"deleting '%s' -&gt; deleted:%s%n"</span>, toDelete, msg);
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>      }
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>  
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> startsWithDemo(SuffixTrie trie, String prefix) {
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>          System.out.printf(<span class="jxr_string">"starts with '%s' %s%n"</span>, prefix, trie.startsWith(prefix, 4));
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>      }
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>  
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> ensWithDemo(SuffixTrie trie, String prefix) {
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>          System.out.printf(<span class="jxr_string">"ends with '%s' %s%n"</span>, prefix, trie.endsWith(prefix, 4));
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>      }
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>  }
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>              System.out.println(<span class="jxr_string">"all words in Shakespeare's Sonnets"</span>);
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>              ensWithDemo(trie, <span class="jxr_string">"ore"</span>, 100);
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>              System.out.println(<span class="jxr_string">"all words in Shakespeare's Sonnets"</span>);
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>              ensWithDemo(trie, <span class="jxr_string">"ass"</span>, 100);
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>              System.out.println(<span class="jxr_string">"all words in Shakespeare's Sonnets"</span>);
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>              ensWithDemo(trie, <span class="jxr_string">"ess"</span>, 100);
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>          } <strong class="jxr_keyword">catch</strong> (Exception e) {
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>              e.printStackTrace();
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>          }
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>      }
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>  
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> deleteDemo(SuffixTrie trie, String toDelete) {
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>          <strong class="jxr_keyword">final</strong> String msg = trie.delete(toDelete) ? <span class="jxr_string">"true"</span> : <span class="jxr_string">"false, reason: not present in tree"</span>;
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>          System.out.printf(<span class="jxr_string">"deleting '%s' -&gt; deleted:%s%n"</span>, toDelete, msg);
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>      }
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>  
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> startsWithDemo(SuffixTrie trie, String prefix) {
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>          System.out.printf(<span class="jxr_string">"starting with '%s' %s%n"</span>, prefix, trie.startsWith(prefix, 4));
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>      }
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>  
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> ensWithDemo(SuffixTrie trie, String prefix, <strong class="jxr_keyword">int</strong> limit) {
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>          <strong class="jxr_keyword">final</strong> Collection&lt;String&gt; endsWith = trie.endsWith(prefix, limit);
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>          System.out.printf(<span class="jxr_string">"ending with '%s' [%d]%s%n"</span>, prefix, endsWith.size(), endsWith);
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>      }
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2023. All rights reserved.</div>

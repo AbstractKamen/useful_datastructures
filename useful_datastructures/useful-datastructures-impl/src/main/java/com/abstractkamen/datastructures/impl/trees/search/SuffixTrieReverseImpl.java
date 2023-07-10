@@ -7,9 +7,15 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class SuffixTrieImpl extends PrefixTrieImpl implements SuffixTrie {
+/**
+ * This implementation uses the same insert/delete/search algorithm as the {@link PrefixTrieImpl}. In order to implement the
+ * {@link SuffixTrie} it reverses the input string. The cost of insert/delete/search is double that of the {@link PrefixTrieImpl}, but is
+ * still O(m) where m is the length of the input string.
+ */
+public class SuffixTrieReverseImpl extends PrefixTrieImpl implements SuffixTrie {
+
     @Override
-    protected boolean shouldDecrementWord(PrefixTrieNode n) {
+    protected boolean shouldDecrementWordOnDelete(PrefixTrieNode n) {
         return !(n instanceof SuffixTrieNode);
     }
 
@@ -79,9 +85,7 @@ public class SuffixTrieImpl extends PrefixTrieImpl implements SuffixTrie {
     public String toString() {
         final List<PrefixTrieNode> leaves = new ArrayList<>();
         search(getRoot(), "", 0, leaves, completeWords(), l -> !(l instanceof SuffixTrieNode));
-        return leaves.stream()
-            .map(l -> l instanceof SuffixTrieNode ? getReversedString(getWord(l)) : getWord(l))
-            .collect(Collectors.joining(", ", "[", "]"));
+        return getWords(leaves).toString();
     }
 
     private String getReversedString(String string) {

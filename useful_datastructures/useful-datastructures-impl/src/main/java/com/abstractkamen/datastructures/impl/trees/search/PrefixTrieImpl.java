@@ -7,11 +7,25 @@ import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+/**
+ * Basic implementation of a prefix 'trie'. Each character of an inserted string is stored in a node in lexicographical order and each
+ * node has children and a parent. All nodes have one common ancestor which is the {@link #root}. A node is marked if the path from the
+ * {@link #root} to it forms a word (a string inserted by {@link #insert(String)}).
+ */
 public class PrefixTrieImpl implements PrefixTrie {
 
     private static final String LINE_SEPARATOR = System.lineSeparator();
+    /**
+     * root node which can never be null
+     */
     private final PrefixTrieNode root;
+    /**
+     * number of complete words
+     */
     private int completeWords;
+    /**
+     * number of nodes
+     */
     private int size;
 
     public PrefixTrieImpl() {
@@ -106,6 +120,16 @@ public class PrefixTrieImpl implements PrefixTrie {
         visitor.append(")");
     }
 
+    /**
+     * Inserts a word character by character where first a character is lookup in the root and if it's missing a new node is created and
+     * appended to the root after which the algorithm is repeated recursively until we reach the end of the word. The final result of the
+     * recursion will be the leaf node.
+     * @param word input sting
+     * @param root root node
+     * @param i current character index
+     * @param factory node factory - useful in extensions
+     * @return the 'inserted' node
+     */
     protected PrefixTrieNode insert(String word, PrefixTrieNode root, int i, BiFunction<Integer, PrefixTrieNode, PrefixTrieNode> factory) {
         if (i == word.length()) {
             return root;
@@ -175,7 +199,7 @@ public class PrefixTrieImpl implements PrefixTrie {
             return false;
         }
         if (n.isWord && i == word.length()) {
-            if (shouldDecrementWord(n)) {
+            if (shouldDecrementWordOnDelete(n)) {
                 completeWords--;
             }
             if (!n.children.isEmpty()) {
@@ -193,12 +217,12 @@ public class PrefixTrieImpl implements PrefixTrie {
     }
 
     /**
-     * wordCount decrementing condition. Can be overridden in extensions.
+     * {@link #completeWords} decrementing condition. Can be overridden in extensions.
      *
      * @param n word node
-     * @return true if wordCount should be decremented
+     * @return true if {@link #completeWords} should be decremented
      */
-    protected boolean shouldDecrementWord(PrefixTrieNode n) {
+    protected boolean shouldDecrementWordOnDelete(PrefixTrieNode n) {
         return true;
     }
 

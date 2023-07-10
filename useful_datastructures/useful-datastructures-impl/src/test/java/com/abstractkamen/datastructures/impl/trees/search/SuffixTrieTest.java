@@ -11,7 +11,7 @@ public class SuffixTrieTest {
 
     @Test
     public void testInsert() {
-        final SuffixTrie tree = new SuffixTrieImpl();
+        final SuffixTrie tree = new SuffixTrieReverseImpl();
         assertTrue(tree.insert("cat"));
         assertTrue(tree.insert("car"));
         // already exists
@@ -26,7 +26,7 @@ public class SuffixTrieTest {
                                                                   "hose", "apple", "car",
                                                                   "extremes", "extreme",
                                                                   "extremities"));
-        final SuffixTrieImpl tree = new SuffixTrieImpl();
+        final SuffixTrieReverseImpl tree = new SuffixTrieReverseImpl();
         expected.forEach(tree::insert);
         assertEquals(expected.toString(), tree.toString());
         System.out.println(tree.prettyString());
@@ -38,7 +38,7 @@ public class SuffixTrieTest {
                                                 "hose", "apple", "car",
                                                 "extremes", "extreme",
                                                 "extremities");
-        final SuffixTrieImpl tree = new SuffixTrieImpl();
+        final SuffixTrieReverseImpl tree = new SuffixTrieReverseImpl();
         list.forEach(tree::insert);
         assertEquals(Arrays.asList("extreme", "extremes", "extremities"), tree.startsWith("ex", Integer.MAX_VALUE));
     }
@@ -49,7 +49,7 @@ public class SuffixTrieTest {
                                                 "hose", "apple", "car",
                                                 "extremes", "extreme",
                                                 "extremities");
-        final SuffixTrieImpl trie = new SuffixTrieImpl();
+        final SuffixTrieReverseImpl trie = new SuffixTrieReverseImpl();
         list.forEach(trie::insert);
         assertTrue(trie.contains("app"));
         assertTrue(trie.contains("hose"));
@@ -72,7 +72,7 @@ public class SuffixTrieTest {
                                                 "hose", "apple", "car",
                                                 "extremes", "extreme",
                                                 "extremities");
-        final SuffixTrieImpl trie = new SuffixTrieImpl();
+        final SuffixTrieReverseImpl trie = new SuffixTrieReverseImpl();
         list.forEach(trie::insert);
         // prefixes
         assertTrue(trie.isPrefix("extremities"));
@@ -128,7 +128,7 @@ public class SuffixTrieTest {
 
     @Test
     public void testDelete() {
-        final SuffixTrie tree = new SuffixTrieImpl();
+        final SuffixTrie tree = new SuffixTrieReverseImpl();
         tree.insert("app");
         tree.insert("apple");
         tree.insert("application");
@@ -170,7 +170,7 @@ public class SuffixTrieTest {
 
     @Test
     public void testInsertAndStartsWith() {
-        SuffixTrie trie = new SuffixTrieImpl();
+        SuffixTrie trie = new SuffixTrieReverseImpl();
         trie.insert("apple");
         trie.insert("banana");
         trie.insert("application");
@@ -183,7 +183,7 @@ public class SuffixTrieTest {
 
     @Test
     public void testInsertAndEndsWith() {
-        SuffixTrie trie = new SuffixTrieImpl();
+        SuffixTrie trie = new SuffixTrieReverseImpl();
         final Collection<String> expected = new LinkedList<>();
         expected.add("complication");
         expected.add("application");
@@ -201,14 +201,14 @@ public class SuffixTrieTest {
 
     @Test
     public void testInsertDuplicate() {
-        final SuffixTrie trie = new SuffixTrieImpl();
+        final SuffixTrie trie = new SuffixTrieReverseImpl();
         trie.insert("apple");
         assertFalse(trie.insert("apple"));
     }
 
     @Test
     public void testSizeAndCompleteWords() {
-        final SuffixTrie trie = new SuffixTrieImpl();
+        final SuffixTrie trie = new SuffixTrieReverseImpl();
         trie.insert("apple");
         trie.insert("banana");
         trie.insert("application");

@@ -1,7 +1,7 @@
 package com.abstractkamen.datastructures.impl.trees.search.demos;
 
 import com.abstractkamen.datastructures.api.trees.search.SuffixTrie;
-import com.abstractkamen.datastructures.impl.trees.search.SuffixTrieImpl;
+import com.abstractkamen.datastructures.impl.trees.search.SuffixTrieReverseImpl;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -18,7 +18,7 @@ public class SuffixTrieDemo {
         final Collection<String> list = List.of("apple", "apricot", "avocado",
                                                 "ant", "app", "ants", "apps", "apis",
                                                 "analyse", "alms", "alarm", "alarms");
-        final SuffixTrie trie = new SuffixTrieImpl();
+        final SuffixTrie trie = new SuffixTrieReverseImpl();
         list.forEach(trie::insert);
         System.out.println(trie);
         System.out.println(trie.prettyString());
@@ -27,11 +27,11 @@ public class SuffixTrieDemo {
         startsWithDemo(trie, "ap");
         startsWithDemo(trie, "app");
         startsWithDemo(trie, "apple");
-        ensWithDemo(trie, "s");
-        ensWithDemo(trie, "ms");
-        ensWithDemo(trie, "rms");
-        ensWithDemo(trie, "arm");
-        ensWithDemo(trie, "arms");
+        ensWithDemo(trie, "s", 4);
+        ensWithDemo(trie, "ms", 4);
+        ensWithDemo(trie, "rms", 4);
+        ensWithDemo(trie, "arm", 4);
+        ensWithDemo(trie, "arms", 4);
         deleteDemo(trie, "appi");
         deleteDemo(trie, "app");
         startsWithDemo(trie, "app");
@@ -53,14 +53,20 @@ public class SuffixTrieDemo {
             assert inputStream != null;
             final BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
             final long insertTime = System.currentTimeMillis();
-            final SuffixTrie trie = new SuffixTrieImpl();
+            final SuffixTrie trie = new SuffixTrieReverseImpl();
             reader.lines().flatMap(s -> Arrays.stream(s.split("\s"))).forEach(trie::insert);
             System.out.printf("Shakespeare's Sonnets inserted in %.3fms%n", (System.currentTimeMillis() - insertTime) / 1000.);
             System.out.println(trie.size());
             System.out.println(trie.completeWords());
             final long findAvocado = System.nanoTime();
-            System.out.printf("Time it took to check if 'avocado' is present[%s] in Shakespeare's Sonnets %.6fns",
+            System.out.printf("Time it took to check if 'avocado' is present[%s] in Shakespeare's Sonnets %.6fns%n",
                               trie.isPrefix("avocado"), (System.nanoTime() - findAvocado) / 1000_000.);
+            System.out.println("all words in Shakespeare's Sonnets");
+            ensWithDemo(trie, "ore", 100);
+            System.out.println("all words in Shakespeare's Sonnets");
+            ensWithDemo(trie, "ass", 100);
+            System.out.println("all words in Shakespeare's Sonnets");
+            ensWithDemo(trie, "ess", 100);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -72,10 +78,11 @@ public class SuffixTrieDemo {
     }
 
     private static void startsWithDemo(SuffixTrie trie, String prefix) {
-        System.out.printf("starts with '%s' %s%n", prefix, trie.startsWith(prefix, 4));
+        System.out.printf("starting with '%s' %s%n", prefix, trie.startsWith(prefix, 4));
     }
 
-    private static void ensWithDemo(SuffixTrie trie, String prefix) {
-        System.out.printf("ends with '%s' %s%n", prefix, trie.endsWith(prefix, 4));
+    private static void ensWithDemo(SuffixTrie trie, String prefix, int limit) {
+        final Collection<String> endsWith = trie.endsWith(prefix, limit);
+        System.out.printf("ending with '%s' [%d]%s%n", prefix, endsWith.size(), endsWith);
     }
 }

@@ -59,7 +59,7 @@ public class SuffixTrieDemo {
             System.out.println(trie.size());
             System.out.println(trie.completeWords());
             final long findAvocado = System.nanoTime();
-            System.out.printf("Time it took to check if 'avocado' is present[%s] in Shakespeare's Sonnets %.6fns%n",
+            System.out.printf("Time it took to check if 'avocado' is present[%s] in Shakespeare's Sonnets %.6fms%n",
                               trie.isPrefix("avocado"), (System.nanoTime() - findAvocado) / 1000_000.);
             System.out.println("all words in Shakespeare's Sonnets");
             ensWithDemo(trie, "ore", 100);

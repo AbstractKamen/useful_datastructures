@@ -53,7 +53,7 @@ public class PrefixTrieDemo {
             System.out.println(trie.size());
             System.out.println(trie.completeWords());
             final long findAvocado = System.nanoTime();
-            System.out.printf("Time it took to check if 'avocado' is present[%s] in Shakespeare's Sonnets %.6fns",
+            System.out.printf("Time it took to check if 'avocado' is present[%s] in Shakespeare's Sonnets %.6fms",
                               trie.isPrefix("avocado"), (System.nanoTime() - findAvocado) / 1000_000.);
         } catch (Exception e) {
             e.printStackTrace();

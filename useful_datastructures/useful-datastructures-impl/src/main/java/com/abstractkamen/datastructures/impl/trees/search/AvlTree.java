@@ -3,6 +3,7 @@ package com.abstractkamen.datastructures.impl.trees.search;
 import com.abstractkamen.datastructures.api.trees.search.BinarySearchTree;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -56,6 +57,7 @@ public class AvlTree<T> implements BinarySearchTree<T> {
 
     @Override
     public void add(T item) {
+        // fail fast check
         checkComparable(item);
         this.root = insertNode(this.root, item);
         size++;
@@ -63,6 +65,7 @@ public class AvlTree<T> implements BinarySearchTree<T> {
 
     @Override
     public void remove(T item) {
+        // fail fast check
         checkComparable(item);
         final boolean[] isPresent = new boolean[1];
         this.root = removeNode(this.root, item, isPresent);
@@ -77,16 +80,18 @@ public class AvlTree<T> implements BinarySearchTree<T> {
 
     @Override
     public boolean contains(T item) {
+        // fail fast check
         checkComparable(item);
-        return findNode(this.root, item) != null;
+        return findNode(null, this.root, item)[1] != null;
     }
 
     @Override
     public int containsCount(T item) {
+        // fail fast check
         checkComparable(item);
-        final Node<T> n = findNode(this.root, item);
-        if (n != null) {
-            return n.count;
+        final Node<T>[] n = findNode(null, this.root, item);
+        if (n[1] != null) {
+            return n[1].count;
         } else {
             return 0;
         }
@@ -95,6 +100,57 @@ public class AvlTree<T> implements BinarySearchTree<T> {
     @Override
     public int height() {
         return isEmpty() ? -1 : root.height;
+    }
+
+    @Override
+    public T greater(T item) {
+        // fail fast check
+        checkComparable(item);
+        final Node<T>[] found = findNode(null, root, item);
+        final Node<T> nodeWithItem = found[1];
+        if (nodeWithItem != null) {
+            return Optional.ofNullable(successor(nodeWithItem))
+                .map(Node::getItem)
+                .orElse(null);
+        } else {
+            final Node<T> parentOfItemNode = found[0];
+            return Optional.ofNullable(parentOfItemNode).map(n -> {
+                    if (grThan(n.getItem(), item)) {
+                        return findNodeBy(n, pred -> lsThan(pred.getItem(), item), AvlTree::predecessor);
+                    } else {
+                        return n;
+                    }
+                })
+                .map(AvlTree::successor)
+                .map(Node::getItem)
+                .orElse(null);
+        }
+    }
+
+
+    @Override
+    public T lesser(T item) {
+        // fail fast check
+        checkComparable(item);
+        final Node<T>[] found = findNode(null, root, item);
+        final Node<T> nodeWithItem = found[1];
+        if (nodeWithItem != null) {
+            return Optional.ofNullable(predecessor(nodeWithItem))
+                .map(Node::getItem)
+                .orElse(null);
+        } else {
+            final Node<T> parentOfItemNode = found[0];
+            return Optional.ofNullable(parentOfItemNode).map(n -> {
+                    if (lsThan(n.getItem(), item)) {
+                        return findNodeBy(n, pred -> grThan(pred.getItem(), item), AvlTree::successor);
+                    } else {
+                        return n;
+                    }
+                })
+                .map(AvlTree::predecessor)
+                .map(Node::getItem)
+                .orElse(null);
+        }
     }
 
     @Override
@@ -153,10 +209,7 @@ public class AvlTree<T> implements BinarySearchTree<T> {
 
         return new Iterator<>() {
 
-            private final Iterator<Node<T>> nodeIterator = new NodeIterator(
-                walkOneDir(AvlTree.this.root, right()),
-                n -> successor(n, right(), left())
-            );
+            private final Iterator<Node<T>> nodeIterator = new NodeIterator(walkOneDir(AvlTree.this.root, right()), AvlTree::predecessor);
 
             @Override
             public boolean hasNext() {
@@ -182,10 +235,7 @@ public class AvlTree<T> implements BinarySearchTree<T> {
     public Iterator<T> iterator() {
         return new Iterator<>() {
 
-            private final Iterator<Node<T>> nodeIterator = new NodeIterator(
-                walkOneDir(AvlTree.this.root, left()),
-                n -> successor(n, left(), right())
-            );
+            private final Iterator<Node<T>> nodeIterator = new NodeIterator(walkOneDir(AvlTree.this.root, left()), AvlTree::successor);
 
             @Override
             public boolean hasNext() {
@@ -256,11 +306,10 @@ public class AvlTree<T> implements BinarySearchTree<T> {
     private Node<T> removeNode(Node<T> current, T item, boolean[] isPresent) {
         if (current == null)
             return null;
-        final int compare = comparator.compare(current.item, item);
-        if (compare > 0) {
+        if (lsThan(item, current.item)) {
             // when item is smaller than current, go left
             current.setLeft(removeNode(current.left, item, isPresent));
-        } else if (compare < 0) {
+        } else if (grThan(item, current.item)) {
             // when item is greater than current, go right
             current.setRight(removeNode(current.right, item, isPresent));
         } else {
@@ -300,27 +349,27 @@ public class AvlTree<T> implements BinarySearchTree<T> {
         return current;
     }
 
-    private Node<T> findNode(Node<T> root, T item) {
+    @SuppressWarnings("unchecked")
+    private Node<T>[] findNode(Node<T> parent, Node<T> root, T item) {
         if (root == null)
-            return null;
-        if (comparator.compare(root.item, item) == 0)
-            return root;
-        if (comparator.compare(root.item, item) > 0)
-            return findNode(root.left, item);
-        return findNode(root.right, item);
+            return new Node[]{parent, null};
+        if (eq(root.item, item))
+            return new Node[]{parent, root};
+        if (grThan(root.item, item))
+            return findNode(root, root.left, item);
+        return findNode(root, root.right, item);
     }
 
     private Node<T> insertNode(Node<T> current, T item) {
         if (current == null) {
             return new Node<>(item);
         }
-        final int compare = comparator.compare(current.item, item);
         // item is equal increment current
-        if (compare == 0) {
+        if (eq(item, current.item)) {
             current.increment();
             return current;
             // item is lesser go left
-        } else if (compare > 0) {
+        } else if (lsThan(item, current.item)) {
             current.setLeft(insertNode(current.left, item));
             // item is greater go right
         } else {
@@ -339,20 +388,20 @@ public class AvlTree<T> implements BinarySearchTree<T> {
         // when tree is right-skewed
         if (balance > 0 && current.left != null) {
             // Left-Left
-            if (comparator.compare(item, current.left.item) < 0) {
+            if (lsThan(item, current.left.item)) {
                 return rotate(current, this::rightRotate);
                 // Left-Right
-            } else if (comparator.compare(item, current.left.item) > 0) {
+            } else if (grThan(item, current.left.item)) {
                 current.setLeft(rotate(current.left, this::leftRotate));
                 return rotate(current, this::rightRotate);
             }
             // when tree is left-skewed
         } else if (balance < 0 && current.right != null) {
             // Right-Right
-            if (comparator.compare(item, current.right.item) < 0) {
+            if (lsThan(item, current.right.item)) {
                 return rotate(current, this::leftRotate);
                 // Right-Left
-            } else if (comparator.compare(item, current.right.item) > 0) {
+            } else if (grThan(item, current.right.item)) {
                 current.setRight(rotate(current.right, this::rightRotate));
                 return rotate(current, this::leftRotate);
             }
@@ -395,7 +444,37 @@ public class AvlTree<T> implements BinarySearchTree<T> {
         return newRoot;
     }
 
-    private static <T> Node<T> successor(Node<T> node, UnaryOperator<Node<T>> firstDirection, UnaryOperator<Node<T>> lastDirection) {
+    private boolean eq(T a, T b) {
+        return comparator.compare(a, b) == 0;
+    }
+
+    private boolean grThan(T a, T b) {
+        return comparator.compare(a, b) > 0;
+    }
+
+    private boolean lsThan(T a, T b) {
+        return comparator.compare(a, b) < 0;
+    }
+
+    private static <T> Node<T> findNodeBy(Node<T> n, Predicate<Node<T>> p, UnaryOperator<Node<T>> next) {
+        while (n != null) {
+            n = next.apply(n);
+            if (n != null && p.test(n)) {
+                return n;
+            }
+        }
+        return null;
+    }
+
+    private static <T> Node<T> predecessor(Node<T> n) {
+        return ancestry(n, right(), left());
+    }
+
+    private static <T> Node<T> successor(Node<T> n) {
+        return ancestry(n, left(), right());
+    }
+
+    private static <T> Node<T> ancestry(Node<T> node, UnaryOperator<Node<T>> firstDirection, UnaryOperator<Node<T>> lastDirection) {
         if (node == null)
             return null;
         else if (lastDirection.apply(node) != null) {
@@ -474,6 +553,10 @@ public class AvlTree<T> implements BinarySearchTree<T> {
                 }
             }
             this.parent = parent;
+        }
+
+        T getItem() {
+            return item;
         }
 
         void setItem(T item) {

@@ -28,6 +28,7 @@ public interface BinarySearchTree<T> extends Iterable<T> {
      * Adds an item to the tree.
      *
      * @param item to be added
+     * @throws ClassCastException if item cannot be compared
      */
     void add(T item);
 
@@ -35,6 +36,7 @@ public interface BinarySearchTree<T> extends Iterable<T> {
      * Removes an item to from the tree.
      *
      * @param item to be removed
+     * @throws ClassCastException if item cannot be compared
      */
     void remove(T item);
 
@@ -43,6 +45,7 @@ public interface BinarySearchTree<T> extends Iterable<T> {
      *
      * @param item to check
      * @return true if item exists in the tree
+     * @throws ClassCastException if item cannot be compared
      */
     boolean contains(T item);
 
@@ -51,6 +54,7 @@ public interface BinarySearchTree<T> extends Iterable<T> {
      *
      * @param item to check
      * @return number of items equal to {@code item}
+     * @throws ClassCastException if item cannot be compared
      */
     int containsCount(T item);
 
@@ -60,6 +64,24 @@ public interface BinarySearchTree<T> extends Iterable<T> {
      * @return the current height of this tree
      */
     int height();
+
+    /**
+     * Get the first item greater than {@code item}.
+     *
+     * @param item to check
+     * @return found greater item or null if no item is greater
+     * @throws ClassCastException if item cannot be compared
+     */
+    T greater(T item);
+
+    /**
+     * Get the first item lesser than {@code item}.
+     *
+     * @param item to check
+     * @return found lesser item or null if no item is lesser
+     * @throws ClassCastException if item cannot be compared
+     */
+    T lesser(T item);
 
     /**
      * Get the minimum item.

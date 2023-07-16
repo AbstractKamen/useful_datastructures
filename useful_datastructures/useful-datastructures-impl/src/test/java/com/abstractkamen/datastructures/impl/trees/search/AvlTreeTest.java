@@ -44,6 +44,115 @@ public class AvlTreeTest {
         objects.containsCount(new Object());
     }
 
+    @Test
+    public void givenTree_lesserShouldReturnExpected() {
+        tree.add(10);
+        tree.add(5);
+        tree.add(15);
+        tree.add(3);
+        tree.add(7);
+        tree.add(13);
+        tree.add(17);
+        assertEquals(3, (int) tree.lesser(4));
+        assertEquals(3, (int) tree.lesser(5));
+        assertEquals(5, (int) tree.lesser(6));
+        assertEquals(5, (int) tree.lesser(7));
+        assertEquals(7, (int) tree.lesser(8));
+        assertEquals(7, (int) tree.lesser(9));
+        assertEquals(7, (int) tree.lesser(10));
+        assertEquals(10, (int) tree.lesser(11));
+        assertEquals(10, (int) tree.lesser(12));
+        assertEquals(10, (int) tree.lesser(13));
+        assertEquals(13, (int) tree.lesser(14));
+        assertEquals(13, (int) tree.lesser(15));
+        assertEquals(15, (int) tree.lesser(16));
+    }
+    @Test
+    public void givenTree_greaterShouldReturnNull_WhenItemLesserThanOrEqualToMin() {
+        tree.add(10);
+        tree.add(5);
+        tree.add(15);
+        tree.add(3);
+        tree.add(7);
+        tree.add(13);
+        tree.add(17);
+        int min = tree.min();
+        assertEquals(3, min);
+        for (int i = min; i > -10; --i) {
+            assertNull(tree.lesser(i));
+        }
+    }
+
+    @Test
+    public void givenEmptyTree_lesserShouldReturnNull() {
+        assertNull(tree.lesser(10));
+    }
+
+    @Test(expected = ClassCastException.class)
+    public void givenNotComparable_lesserShouldThrowExpected() {
+        final AvlTree<Object> avlTree = new AvlTree<>();
+        avlTree.lesser(new Object());
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void givenNull_lesserShouldThrowExpected() {
+        final AvlTree<Object> avlTree = new AvlTree<>();
+        avlTree.lesser(null);
+    }
+    @Test
+    public void givenTree_greaterShouldReturnExpected() {
+        tree.add(10);
+        tree.add(5);
+        tree.add(15);
+        tree.add(3);
+        tree.add(7);
+        tree.add(13);
+        tree.add(17);
+        assertEquals(10, (int) tree.greater(7));
+        assertEquals(10, (int) tree.greater(8));
+        assertEquals(10, (int) tree.greater(9));
+        assertEquals(13, (int) tree.greater(10));
+        assertEquals(13, (int) tree.greater(11));
+        assertEquals(13, (int) tree.greater(12));
+        assertEquals(15, (int) tree.greater(13));
+        assertEquals(15, (int) tree.greater(14));
+        assertEquals(17, (int) tree.greater(15));
+        assertEquals(17, (int) tree.greater(16));
+    }
+
+    @Test
+    public void givenTree_greaterShouldReturnNull_WhenItemGreaterThanOrEqualToMax() {
+        tree.add(10);
+        tree.add(5);
+        tree.add(15);
+        tree.add(3);
+        tree.add(7);
+        tree.add(13);
+        tree.add(17);
+        int max = tree.max();
+        assertEquals(17, max);
+        for (int i = max; i < 10; i++) {
+            assertNull(tree.greater(i));
+        }
+    }
+
+    @Test
+    public void givenEmptyTree_greaterShouldReturnNull() {
+        assertNull(tree.greater(10));
+    }
+
+    @Test(expected = ClassCastException.class)
+    public void givenNotComparable_greaterShouldThrowExpected() {
+        final AvlTree<Object> avlTree = new AvlTree<>();
+        avlTree.greater(new Object());
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void givenNull_greaterShouldThrowExpected() {
+        final AvlTree<Object> avlTree = new AvlTree<>();
+        avlTree.greater(null);
+    }
+
 
     @Test
     public void testMax() {

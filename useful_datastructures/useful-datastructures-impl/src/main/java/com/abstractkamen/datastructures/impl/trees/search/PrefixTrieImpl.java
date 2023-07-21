@@ -5,7 +5,6 @@ import com.abstractkamen.datastructures.api.trees.search.PrefixTrie;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * Basic implementation of a prefix 'trie'. Each character of an inserted string is stored in a node in lexicographical order and each
@@ -38,14 +37,14 @@ public class PrefixTrieImpl implements PrefixTrie {
 
     @Override
     public Collection<String> startsWith(String prefix, int limit) {
-        final List<PrefixTrieNode> leaves = new ArrayList<>();
-        search(this.root, prefix, 0, leaves, limit, l -> true);
-        return getWords(leaves);
+        final List<String> strings = new ArrayList<>();
+        search(this.root, prefix, 0, strings, limit, l -> true, new StringBuilder());
+        return strings;
     }
 
     @Override
     public boolean isPrefix(String substring) {
-        return search(this.root, substring, 0, new ArrayList<>(), 1, l -> true);
+        return search(this.root, substring, 0, new ArrayList<>(), 1, l -> true, new StringBuilder());
     }
 
     @Override
@@ -83,8 +82,8 @@ public class PrefixTrieImpl implements PrefixTrie {
 
     @Override
     public boolean contains(String string) {
-        final List<PrefixTrieNode> result = new ArrayList<>();
-        search(this.root, string, 0, result, 1, l -> true);
+        final List<String> result = new ArrayList<>();
+        search(this.root, string, 0, result, 1, l -> true, new StringBuilder());
         return !result.isEmpty();
     }
 
@@ -97,7 +96,7 @@ public class PrefixTrieImpl implements PrefixTrie {
                 .append(size).append(LINE_SEPARATOR)
                 .append("total complete words:")
                 .append(completeWords).append(LINE_SEPARATOR);
-            visitAllNodes(0, this.root, ">>>", sb);
+            visitAllNodes(0, this.root, ">>>", sb, new StringBuilder());
             return sb.toString();
         }
     }
@@ -108,15 +107,10 @@ public class PrefixTrieImpl implements PrefixTrie {
      * @param node word node
      * @param visitor sb visitor
      */
-    protected void visitWordNode(PrefixTrieNode node, StringBuilder visitor) {
+    protected void visitWordNode(PrefixTrieNode node, StringBuilder visitor, StringBuilder currentChars) {
         // if current is word append the whole word to the current node
-        PrefixTrieNode c = node;
         visitor.append(": (");
-        final int l = visitor.length();
-        while (c != this.root) {
-            visitor.insert(l, (char) c.c);
-            c = c.parent;
-        }
+        visitor.append(currentChars);
         visitor.append(")");
     }
 
@@ -145,19 +139,6 @@ public class PrefixTrieImpl implements PrefixTrie {
         }
     }
 
-    protected Collection<String> getWords(List<PrefixTrieNode> leaves) {
-        return leaves.stream().map(this::getWord).collect(Collectors.toList());
-    }
-
-    protected String getWord(PrefixTrieNode l) {
-        final StringBuilder sb = new StringBuilder();
-        while (l != this.root) {
-            sb.insert(0, (char) l.c);
-            l = l.parent;
-        }
-        return sb.toString();
-    }
-
     /**
      * Searching method for this trie. Will walk through all characters in needle and find a possible path of nodes for them. If the path
      * exists return true.
@@ -169,28 +150,33 @@ public class PrefixTrieImpl implements PrefixTrie {
      * @param resultTest add to result collection if true
      * @return true if a needle path exists
      */
-    protected boolean search(PrefixTrieNode n, String needle, int i, Collection<PrefixTrieNode> result, int resultLimit,
-                             Predicate<PrefixTrieNode> resultTest) {
+    protected boolean search(PrefixTrieNode n, String needle, int i, Collection<String> result, int resultLimit,
+                             Predicate<PrefixTrieNode> resultTest, StringBuilder currentChars) {
         if (n == null) {
             // we fell off the tree
             return false;
-        } else if (result.size() >= resultLimit) {
+        }
+        if (n != this.root) {
+            currentChars.append((char) n.c);
+        }
+        if (result.size() >= resultLimit) {
             //we hit the limit and must return, but we haven't fallen off
             return true;
         }
         if (n.isWord && i >= needle.length() && resultTest.test(n)) {
-            result.add(n);
+            result.add(currentChars.toString());
         }
         if (i >= needle.length()) {
             // assume always hit
             for (PrefixTrieNode c : n.children.values()) {
-                search(c, needle, i + 1, result, resultLimit, resultTest);
+                // new branch -> new StringBuilder
+                search(c, needle, i + 1, result, resultLimit, resultTest, new StringBuilder(currentChars));
             }
             return true;
         } else {
             final int c = needle.charAt(i);
             // go deeper
-            return search(n.children.get(c), needle, i + 1, result, resultLimit, resultTest);
+            return search(n.children.get(c), needle, i + 1, result, resultLimit, resultTest, currentChars);
         }
     }
 
@@ -226,22 +212,22 @@ public class PrefixTrieImpl implements PrefixTrie {
         return true;
     }
 
-    private void visitAllNodes(int size, PrefixTrieNode node, String prefix, StringBuilder visitor) {
+    private void visitAllNodes(int size, PrefixTrieNode node, String prefix, StringBuilder visitor, StringBuilder currentChars) {
         final String pointer = "├─► ";
         final String hookPointer = "└─► ";
         final String pointerConnection = "│";
         // depth-first search
         // visit current
         if (node != this.root) {
-            if (size > 1)
-                visitor.append(prefix).append(pointer);
-            else {
+
+            if (size > 1) {visitor.append(prefix).append(pointer);} else {
                 visitor.append(prefix).append(hookPointer);
             }
+            currentChars.append((char) node.c);
             visitor.append((char) node.c);
         }
         if (node.isWord) {
-            visitWordNode(node, visitor);
+            visitWordNode(node, visitor, currentChars);
         }
         visitor.append(LINE_SEPARATOR);
         final String nextPrefix;
@@ -255,7 +241,10 @@ public class PrefixTrieImpl implements PrefixTrie {
         // visit children
         int s = node.children.size();
         for (PrefixTrieNode child : node.children.values()) {
-            visitAllNodes(s--, child, nextPrefix, visitor);
+            visitAllNodes(s--, child, nextPrefix, visitor, currentChars);
+        }
+        if (this.root != node) {
+            currentChars.setLength(currentChars.length() - 1);
         }
     }
 

@@ -3,8 +3,7 @@ package com.abstractkamen.datastructures.api.trees.search;
 import java.util.Collection;
 
 /**
- * An extension of the prefix trie. This structure can perform fast suffix matches at the cost of a structure double the size of a
- * PrefixTrie.
+ * An extension of the prefix trie. This structure can perform fast suffix matches.
  */
 public interface SuffixTrie extends PrefixTrie {
 

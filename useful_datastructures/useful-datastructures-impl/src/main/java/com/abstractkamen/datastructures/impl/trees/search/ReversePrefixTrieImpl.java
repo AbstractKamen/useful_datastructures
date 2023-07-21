@@ -12,25 +12,21 @@ import java.util.stream.Collectors;
  * {@link SuffixTrie} it reverses the input string. The cost of insert/delete/search is double that of the {@link PrefixTrieImpl}, but is
  * still O(m) where m is the length of the input string.
  */
-public class SuffixTrieReverseImpl extends PrefixTrieImpl implements SuffixTrie {
+public class ReversePrefixTrieImpl extends PrefixTrieImpl implements SuffixTrie {
 
     @Override
     protected boolean shouldDecrementWordOnDelete(PrefixTrieNode n) {
-        return !(n instanceof SuffixTrieNode);
+        return !(n instanceof ReversePrefixTrieNode);
     }
 
     @Override
-    protected void visitWordNode(PrefixTrieNode node, StringBuilder visitor) {
-        if (node instanceof SuffixTrieNode) {
-            PrefixTrieNode c = node;
+    protected void visitWordNode(PrefixTrieNode node, StringBuilder visitor, StringBuilder currentChars) {
+        if (node instanceof ReversePrefixTrieNode) {
             visitor.append(": (");
-            while (c != getRoot()) {
-                visitor.append((char) c.getC());
-                c = c.getParent();
-            }
+            visitor.append(new StringBuilder(currentChars).reverse());
             visitor.append(")");
         } else {
-            super.visitWordNode(node, visitor);
+            super.visitWordNode(node, visitor, currentChars);
         }
     }
 
@@ -39,7 +35,7 @@ public class SuffixTrieReverseImpl extends PrefixTrieImpl implements SuffixTrie 
         final boolean insert = super.insert(string);
         if (insert) {
             final String reversed = getReversedString(string);
-            new SuffixTrieNode(insert(reversed, getRoot(), 0, SuffixTrieNode::new));
+            new ReversePrefixTrieNode(insert(reversed, getRoot(), 0, ReversePrefixTrieNode::new));
         }
         return insert;
     }
@@ -55,46 +51,44 @@ public class SuffixTrieReverseImpl extends PrefixTrieImpl implements SuffixTrie 
 
     @Override
     public Collection<String> endsWith(String suffix, int limit) {
-        final List<PrefixTrieNode> leaves = new ArrayList<>();
-        search(getRoot(), getReversedString(suffix), 0, leaves, limit, SuffixTrieNode.class::isInstance);
-        return getWords(leaves).stream().map(this::getReversedString).collect(Collectors.toList());
+        final List<String> inReverse = new ArrayList<>();
+        search(getRoot(), getReversedString(suffix), 0, inReverse, limit, ReversePrefixTrieNode.class::isInstance, new StringBuilder());
+        return inReverse.stream().map(this::getReversedString).collect(Collectors.toList());
     }
 
     @Override
     public boolean isSuffix(String suffix) {
-        final List<PrefixTrieNode> result = new ArrayList<>();
-        search(getRoot(), getReversedString(suffix), 0, result, 1, SuffixTrieNode.class::isInstance);
-        return !result.isEmpty();
+        final List<String> strings = new ArrayList<>();
+        search(getRoot(), getReversedString(suffix), 0, strings, 1, ReversePrefixTrieNode.class::isInstance, new StringBuilder());
+        return !strings.isEmpty();
     }
 
     @Override
     public boolean isPrefix(String prefix) {
-        final ArrayList<PrefixTrieNode> result = new ArrayList<>();
-        search(getRoot(), prefix, 0, result, 1, l -> !(l instanceof SuffixTrieNode));
-        return !result.isEmpty();
+        return !startsWith(prefix, 1).isEmpty();
     }
 
     @Override
     public Collection<String> startsWith(String prefix, int limit) {
-        final List<PrefixTrieNode> leaves = new ArrayList<>();
-        search(getRoot(), prefix, 0, leaves, limit, l -> !(l instanceof SuffixTrieNode));
-        return getWords(leaves);
+        final List<String> strings = new ArrayList<>();
+        search(getRoot(), prefix, 0, strings, limit, l -> !(l instanceof ReversePrefixTrieNode), new StringBuilder());
+        return strings;
     }
 
     @Override
     public String toString() {
-        final List<PrefixTrieNode> leaves = new ArrayList<>();
-        search(getRoot(), "", 0, leaves, completeWords(), l -> !(l instanceof SuffixTrieNode));
-        return getWords(leaves).toString();
+        final List<String> strings = new ArrayList<>();
+        search(getRoot(), "", 0, strings, completeWords(), l -> !(l instanceof ReversePrefixTrieNode), new StringBuilder());
+        return strings.toString();
     }
 
     private String getReversedString(String string) {
         return new StringBuilder(string).reverse().toString();
     }
 
-    private static class SuffixTrieNode extends PrefixTrieNode {
+    private static class ReversePrefixTrieNode extends PrefixTrieNode {
 
-        SuffixTrieNode(int c, PrefixTrieNode parent) {
+        ReversePrefixTrieNode(int c, PrefixTrieNode parent) {
             super(c, parent);
         }
 
@@ -102,7 +96,7 @@ public class SuffixTrieReverseImpl extends PrefixTrieImpl implements SuffixTrie 
          * Copies the template and replaces it in its parent.
          * @param template node
          */
-        SuffixTrieNode(PrefixTrieNode template) {
+        ReversePrefixTrieNode(PrefixTrieNode template) {
             super(template.getC(), template.getParent());
             setC(template.getC());
             setIsWord(true);

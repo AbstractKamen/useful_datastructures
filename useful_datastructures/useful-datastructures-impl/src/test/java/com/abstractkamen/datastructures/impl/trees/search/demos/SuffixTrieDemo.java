@@ -1,7 +1,7 @@
 package com.abstractkamen.datastructures.impl.trees.search.demos;
 
 import com.abstractkamen.datastructures.api.trees.search.SuffixTrie;
-import com.abstractkamen.datastructures.impl.trees.search.SuffixTrieReverseImpl;
+import com.abstractkamen.datastructures.impl.trees.search.ReversePrefixTrieImpl;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -18,7 +18,7 @@ public class SuffixTrieDemo {
         final Collection<String> list = List.of("apple", "apricot", "avocado",
                                                 "ant", "app", "ants", "apps", "apis",
                                                 "analyse", "alms", "alarm", "alarms");
-        final SuffixTrie trie = new SuffixTrieReverseImpl();
+        final SuffixTrie trie = new ReversePrefixTrieImpl();
         list.forEach(trie::insert);
         System.out.println(trie);
         System.out.println(trie.prettyString());
@@ -53,7 +53,7 @@ public class SuffixTrieDemo {
             assert inputStream != null;
             final BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
             final long insertTime = System.currentTimeMillis();
-            final SuffixTrie trie = new SuffixTrieReverseImpl();
+            final SuffixTrie trie = new ReversePrefixTrieImpl();
             reader.lines().flatMap(s -> Arrays.stream(s.split("\s"))).forEach(trie::insert);
             System.out.printf("Shakespeare's Sonnets inserted in %.3fms%n", (System.currentTimeMillis() - insertTime) / 1000.);
             System.out.println(trie.size());

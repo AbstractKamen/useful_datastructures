@@ -57,16 +57,14 @@ public class AvlTree<T> implements BinarySearchTree<T> {
 
     @Override
     public void add(T item) {
-        // fail fast check
-        checkComparable(item);
+        failFastCheckComparable(item);
         this.root = insertNode(this.root, item);
         size++;
     }
 
     @Override
     public void remove(T item) {
-        // fail fast check
-        checkComparable(item);
+        failFastCheckComparable(item);
         final boolean[] isPresent = new boolean[1];
         this.root = removeNode(this.root, item, isPresent);
         if (root != null) {
@@ -80,15 +78,13 @@ public class AvlTree<T> implements BinarySearchTree<T> {
 
     @Override
     public boolean contains(T item) {
-        // fail fast check
-        checkComparable(item);
+        failFastCheckComparable(item);
         return findNode(null, this.root, item)[1] != null;
     }
 
     @Override
     public int containsCount(T item) {
-        // fail fast check
-        checkComparable(item);
+        failFastCheckComparable(item);
         final Node<T>[] n = findNode(null, this.root, item);
         if (n[1] != null) {
             return n[1].count;
@@ -104,53 +100,13 @@ public class AvlTree<T> implements BinarySearchTree<T> {
 
     @Override
     public T greater(T item) {
-        // fail fast check
-        checkComparable(item);
-        final Node<T>[] found = findNode(null, root, item);
-        final Node<T> nodeWithItem = found[1];
-        if (nodeWithItem != null) {
-            return Optional.ofNullable(successor(nodeWithItem))
-                .map(Node::getItem)
-                .orElse(null);
-        } else {
-            final Node<T> parentOfItemNode = found[0];
-            return Optional.ofNullable(parentOfItemNode).map(n -> {
-                    if (grThan(n.getItem(), item)) {
-                        return findNodeBy(n, pred -> lsThan(pred.getItem(), item), AvlTree::predecessor);
-                    } else {
-                        return n;
-                    }
-                })
-                .map(AvlTree::successor)
-                .map(Node::getItem)
-                .orElse(null);
-        }
+        return findItem(item, n -> n != null && grThan(n.getItem(), item), AvlTree::successor, AvlTree::predecessor);
     }
-
 
     @Override
     public T lesser(T item) {
-        // fail fast check
-        checkComparable(item);
-        final Node<T>[] found = findNode(null, root, item);
-        final Node<T> nodeWithItem = found[1];
-        if (nodeWithItem != null) {
-            return Optional.ofNullable(predecessor(nodeWithItem))
-                .map(Node::getItem)
-                .orElse(null);
-        } else {
-            final Node<T> parentOfItemNode = found[0];
-            return Optional.ofNullable(parentOfItemNode).map(n -> {
-                    if (lsThan(n.getItem(), item)) {
-                        return findNodeBy(n, pred -> grThan(pred.getItem(), item), AvlTree::successor);
-                    } else {
-                        return n;
-                    }
-                })
-                .map(AvlTree::predecessor)
-                .map(Node::getItem)
-                .orElse(null);
-        }
+        return findItem(item, n -> n != null && lsThan(n.getItem(), item), AvlTree::predecessor, AvlTree::successor);
+
     }
 
     @Override
@@ -349,6 +305,34 @@ public class AvlTree<T> implements BinarySearchTree<T> {
         return current;
     }
 
+    private T findItem(T item, Predicate<Node<T>> grThanOrLsThan, UnaryOperator<Node<T>> down, UnaryOperator<Node<T>> up) {
+        failFastCheckComparable(item);
+        final Node<T>[] found = findNode(null, root, item);
+        final Node<T> nodeWithItem = found[1];
+        if (nodeWithItem != null) {
+            return Optional.ofNullable(down.apply(nodeWithItem))
+                .map(Node::getItem)
+                .orElse(null);
+        } else {
+            return Optional.ofNullable(found[0]).map(n -> {
+                    if (grThanOrLsThan.test(n)) {
+                        do {
+                            n = up.apply(n);
+                            if (!grThanOrLsThan.test(n)) {
+                                return n;
+                            }
+                        } while (n != null);
+                        return null;
+                    } else {
+                        return n;
+                    }
+                })
+                .map(down)
+                .map(Node::getItem)
+                .orElse(null);
+        }
+    }
+
     @SuppressWarnings("unchecked")
     private Node<T>[] findNode(Node<T> parent, Node<T> root, T item) {
         if (root == null)
@@ -456,16 +440,6 @@ public class AvlTree<T> implements BinarySearchTree<T> {
         return comparator.compare(a, b) < 0;
     }
 
-    private static <T> Node<T> findNodeBy(Node<T> n, Predicate<Node<T>> p, UnaryOperator<Node<T>> next) {
-        while (n != null) {
-            n = next.apply(n);
-            if (n != null && p.test(n)) {
-                return n;
-            }
-        }
-        return null;
-    }
-
     private static <T> Node<T> predecessor(Node<T> n) {
         return ancestry(n, right(), left());
     }
@@ -512,7 +486,7 @@ public class AvlTree<T> implements BinarySearchTree<T> {
         return null;
     }
 
-    private void checkComparable(T item) {
+    private void failFastCheckComparable(T item) {
         comparator.compare(item, item);
     }
 

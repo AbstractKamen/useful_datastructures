@@ -3,7 +3,7 @@ package com.abstractkamen.datastructures.api.trees.search;
 import java.util.Collection;
 
 /**
- * An extension of the prefix trie. This structure can perform fast suffix matches.
+ * An extension of the prefix trie. This structure can perform fast substring matches.
  */
 public interface SuffixTrie extends PrefixTrie {
 
@@ -23,4 +23,8 @@ public interface SuffixTrie extends PrefixTrie {
      * @return true if suffix exists
      */
     boolean isSuffix(String suffix);
+
+    String longestCommonSubstring();
+
+    Collection<String> substringWith(String substring, int limit);
 }

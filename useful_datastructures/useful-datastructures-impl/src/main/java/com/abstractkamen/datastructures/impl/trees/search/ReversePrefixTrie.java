@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
  * {@link SuffixTrie} it reverses the input string. The cost of insert/delete/search is double that of the {@link PrefixTrieImpl}, but is
  * still O(m) where m is the length of the input string.
  */
-public class ReversePrefixTrieImpl extends PrefixTrieImpl implements SuffixTrie {
+public class ReversePrefixTrie extends PrefixTrieImpl implements SuffixTrie {
 
     @Override
     protected boolean shouldDecrementWordOnDelete(PrefixTrieNode n) {
@@ -82,6 +82,16 @@ public class ReversePrefixTrieImpl extends PrefixTrieImpl implements SuffixTrie 
         return strings.toString();
     }
 
+    @Override
+    public String longestCommonSubstring() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Collection<String> substringWith(String substring, int limit) {
+        throw new UnsupportedOperationException();
+    }
+
     private String getReversedString(String string) {
         return new StringBuilder(string).reverse().toString();
     }
@@ -103,5 +113,6 @@ public class ReversePrefixTrieImpl extends PrefixTrieImpl implements SuffixTrie 
             template.getChildren().forEach(this::addChild);
             template.getParent().addChild(getC(), this);
         }
+
     }
 }

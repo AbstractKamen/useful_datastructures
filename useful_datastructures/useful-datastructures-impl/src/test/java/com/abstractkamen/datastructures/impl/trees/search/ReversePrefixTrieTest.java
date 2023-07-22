@@ -7,11 +7,11 @@ import java.util.*;
 
 import static org.junit.Assert.*;
 
-public class SuffixTrieTest {
+public class ReversePrefixTrieTest {
 
     @Test
     public void testInsert() {
-        final SuffixTrie tree = new ReversePrefixTrieImpl();
+        final SuffixTrie tree = new ReversePrefixTrie();
         assertTrue(tree.insert("cat"));
         assertTrue(tree.insert("car"));
         // already exists
@@ -26,7 +26,7 @@ public class SuffixTrieTest {
                                                                   "hose", "apple", "car",
                                                                   "extremes", "extreme",
                                                                   "extremities"));
-        final ReversePrefixTrieImpl tree = new ReversePrefixTrieImpl();
+        final ReversePrefixTrie tree = new ReversePrefixTrie();
         expected.forEach(tree::insert);
         assertEquals(expected.toString(), tree.toString());
         System.out.println(tree.prettyString());
@@ -38,7 +38,7 @@ public class SuffixTrieTest {
                                                 "hose", "apple", "car",
                                                 "extremes", "extreme",
                                                 "extremities");
-        final ReversePrefixTrieImpl tree = new ReversePrefixTrieImpl();
+        final ReversePrefixTrie tree = new ReversePrefixTrie();
         list.forEach(tree::insert);
         assertEquals(Arrays.asList("extreme", "extremes", "extremities"), tree.startsWith("ex", Integer.MAX_VALUE));
     }
@@ -49,7 +49,7 @@ public class SuffixTrieTest {
                                                 "hose", "apple", "car",
                                                 "extremes", "extreme",
                                                 "extremities");
-        final ReversePrefixTrieImpl trie = new ReversePrefixTrieImpl();
+        final ReversePrefixTrie trie = new ReversePrefixTrie();
         list.forEach(trie::insert);
         assertTrue(trie.contains("app"));
         assertTrue(trie.contains("hose"));
@@ -72,7 +72,7 @@ public class SuffixTrieTest {
                                                 "hose", "apple", "car",
                                                 "extremes", "extreme",
                                                 "extremities");
-        final ReversePrefixTrieImpl trie = new ReversePrefixTrieImpl();
+        final ReversePrefixTrie trie = new ReversePrefixTrie();
         list.forEach(trie::insert);
         // prefixes
         assertTrue(trie.isPrefix("extremities"));
@@ -128,7 +128,7 @@ public class SuffixTrieTest {
 
     @Test
     public void testDelete() {
-        final SuffixTrie tree = new ReversePrefixTrieImpl();
+        final SuffixTrie tree = new ReversePrefixTrie();
         tree.insert("app");
         tree.insert("apple");
         tree.insert("application");
@@ -170,7 +170,7 @@ public class SuffixTrieTest {
 
     @Test
     public void testInsertAndStartsWith() {
-        SuffixTrie trie = new ReversePrefixTrieImpl();
+        SuffixTrie trie = new ReversePrefixTrie();
         trie.insert("apple");
         trie.insert("banana");
         trie.insert("application");
@@ -183,7 +183,7 @@ public class SuffixTrieTest {
 
     @Test
     public void testInsertAndEndsWith() {
-        SuffixTrie trie = new ReversePrefixTrieImpl();
+        SuffixTrie trie = new ReversePrefixTrie();
         final Collection<String> expected = new LinkedList<>();
         expected.add("complication");
         expected.add("application");
@@ -201,14 +201,14 @@ public class SuffixTrieTest {
 
     @Test
     public void testInsertDuplicate() {
-        final SuffixTrie trie = new ReversePrefixTrieImpl();
+        final SuffixTrie trie = new ReversePrefixTrie();
         trie.insert("apple");
         assertFalse(trie.insert("apple"));
     }
 
     @Test
     public void testSizeAndCompleteWords() {
-        final SuffixTrie trie = new ReversePrefixTrieImpl();
+        final SuffixTrie trie = new ReversePrefixTrie();
         trie.insert("apple");
         trie.insert("banana");
         trie.insert("application");

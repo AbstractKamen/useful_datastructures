@@ -51,7 +51,7 @@ public class PrefixTrieImpl implements PrefixTrie {
     public boolean insert(String string) {
         if (string == null || string.isEmpty()) return false;
         final PrefixTrieNode inserted = insert(string, this.root, 0, PrefixTrieNode::new);
-        if (inserted.isWord) {
+        if (inserted.isWord()) {
             // was inserted before
             return false;
         }
@@ -157,13 +157,13 @@ public class PrefixTrieImpl implements PrefixTrie {
             return false;
         }
         if (n != this.root) {
-            currentChars.append((char) n.c);
+            currentChars.append(n.getChar());
         }
         if (result.size() >= resultLimit) {
             //we hit the limit and must return, but we haven't fallen off
             return true;
         }
-        if (n.isWord && i >= needle.length() && resultTest.test(n)) {
+        if (n.isWord() && i >= needle.length() && resultTest.test(n)) {
             result.add(currentChars.toString());
         }
         if (i >= needle.length()) {
@@ -184,7 +184,7 @@ public class PrefixTrieImpl implements PrefixTrie {
         if (n == null || i > word.length()) {
             return false;
         }
-        if (n.isWord && i == word.length()) {
+        if (n.isWord() && i == word.length()) {
             if (shouldDecrementWordOnDelete(n)) {
                 completeWords--;
             }
@@ -220,13 +220,15 @@ public class PrefixTrieImpl implements PrefixTrie {
         // visit current
         if (node != this.root) {
 
-            if (size > 1) {visitor.append(prefix).append(pointer);} else {
+            if (size > 1) {
+                visitor.append(prefix).append(pointer);
+            } else {
                 visitor.append(prefix).append(hookPointer);
             }
-            currentChars.append((char) node.c);
-            visitor.append((char) node.c);
+            currentChars.append(node.getChar());
+            visitor.append(node.getChar());
         }
-        if (node.isWord) {
+        if (node.isWord()) {
             visitWordNode(node, visitor, currentChars);
         }
         visitor.append(LINE_SEPARATOR);
@@ -263,43 +265,48 @@ public class PrefixTrieImpl implements PrefixTrie {
         private final Map<Integer, PrefixTrieNode> children;
         private boolean isWord;
         private int c;
-        private int distanceFromRoot;
         private PrefixTrieNode parent;
 
         PrefixTrieNode() {
             children = new TreeMap<>();
-            this.distanceFromRoot = 1;
         }
 
         PrefixTrieNode(int c, PrefixTrieNode parent) {
             this();
             this.c = c;
             this.parent = parent;
-            this.distanceFromRoot = parent.distanceFromRoot + 1;
         }
 
-        protected void setIsWord(boolean isWord) {
+        void setIsWord(boolean isWord) {
             this.isWord = isWord;
         }
 
-        protected void addChild(int c, PrefixTrieNode child) {
+        void addChild(int c, PrefixTrieNode child) {
             this.children.put(c, child);
         }
 
-        protected void setC(int c) {
+        void setC(int c) {
             this.c = c;
         }
 
-        protected int getC() {
+        int getC() {
             return c;
         }
 
-        protected Map<Integer, PrefixTrieNode> getChildren() {
+        char getChar() {
+            return (char) c;
+        }
+
+        Map<Integer, PrefixTrieNode> getChildren() {
             return children;
         }
 
-        public PrefixTrieNode getParent() {
+        PrefixTrieNode getParent() {
             return parent;
+        }
+
+        boolean isWord() {
+            return isWord;
         }
     }
 }

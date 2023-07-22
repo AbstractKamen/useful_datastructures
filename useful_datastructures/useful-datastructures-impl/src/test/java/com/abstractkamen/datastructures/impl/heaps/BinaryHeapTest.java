@@ -2,14 +2,10 @@ package com.abstractkamen.datastructures.impl.heaps;
 
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.IntStream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 public class BinaryHeapTest {
 

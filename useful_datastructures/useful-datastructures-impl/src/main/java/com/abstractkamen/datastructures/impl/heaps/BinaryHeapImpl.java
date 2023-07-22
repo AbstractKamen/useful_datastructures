@@ -7,6 +7,15 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+/**
+ * The elements of the heap are ordered according to their natural ordering,
+ * or by a Comparator provided at construction time, depending on which
+ * constructor is used. This implementation does not permit null elements.
+ * When relying on natural  ordering insertion of non-comparable objects is
+ * not permitted (doing so may result in ClassCastException).
+ *
+ * @param <T> The type of elements stored in the binary heap.
+ */
 public class BinaryHeapImpl<T> implements BinaryHeap<T> {
     private final Comparator<T> comparator;
     private final List<T> items = new ArrayList<>();
@@ -72,6 +81,27 @@ public class BinaryHeapImpl<T> implements BinaryHeap<T> {
         return items.toString();
     }
 
+    /**
+     * Restores the minimum heap property of the binary heap after modifications to its elements.
+     * This method should be called when some elements' keys are mutated to ensure that the
+     * minimum heap property is maintained throughout the binary heap.
+     * <p>
+     * The method traverses the binary heap from the last parent node to the root, applying the
+     * heapifyDown operation to each node. This process rearranges the elements to satisfy the
+     * minimum heap property, considering the updated keys.
+     * </p>
+     * <p>
+     * Note: This method assumes that the comparator used to create the binary heap is consistent
+     * with the keys of the elements, and the elements are unique based on their keys.
+     * </p>
+     */
+    private void restoreHeapOrder() {
+        int i = (size >>> 1) - 1;
+        for (; i >= 0; i--) {
+            heapifyDown(i);
+        }
+    }
+
     private void heapifyDown(int i) {
         final int smallest = smallestChild(i);
         if (smallest != i) {
@@ -120,7 +150,7 @@ public class BinaryHeapImpl<T> implements BinaryHeap<T> {
         items.set(b, tempA);
     }
 
-    boolean greaterThan(int a, int b) {
+    private boolean greaterThan(int a, int b) {
         return comparator.compare(items.get(a), items.get(b)) > 0;
     }
 

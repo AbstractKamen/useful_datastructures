@@ -1,6 +1,7 @@
 package com.abstractkamen.datastructures.impl.heaps;
 
-import com.abstractkamen.datastructures.api.heaps.BinaryHeap;
+import com.abstractkamen.datastructures.api.heaps.Heap;
+import com.abstractkamen.datastructures.api.heaps.MergeableHeap;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -8,15 +9,13 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
- * The elements of the heap are ordered according to their natural ordering,
+ * The elements of the binary heap are ordered according to their natural ordering,
  * or by a Comparator provided at construction time, depending on which
  * constructor is used. This implementation does not permit null elements.
- * When relying on natural  ordering insertion of non-comparable objects is
- * not permitted (doing so may result in ClassCastException).
  *
  * @param <T> The type of elements stored in the binary heap.
  */
-public class BinaryHeapImpl<T> implements BinaryHeap<T> {
+public class BinaryHeapImpl<T> implements Heap<T>, MergeableHeap<BinaryHeapImpl<T>> {
     private final Comparator<T> comparator;
     private final List<T> items = new ArrayList<>();
     private int size;
@@ -30,11 +29,11 @@ public class BinaryHeapImpl<T> implements BinaryHeap<T> {
     }
 
     /**
-     * Create an {@code BinaryHeapImpl<T>} with natural order comparator. {@code T} is expected to be {@code instanceof Comparable<T>}
+     * Create an {@code BinaryHeapImpl<T>} with natural order comparator in a type safe way.
      */
-    @SuppressWarnings("unchecked")
-    public BinaryHeapImpl() {
-        this(Comparator.comparing(t -> ((Comparable<Object>) t)));
+    public static <T extends Comparable<T>> BinaryHeapImpl<T> createComparable() {
+        final Comparator<T> c = Comparable::compareTo;
+        return new BinaryHeapImpl<>(c);
     }
 
     @Override
@@ -49,7 +48,6 @@ public class BinaryHeapImpl<T> implements BinaryHeap<T> {
 
     @Override
     public int push(T item) {
-        failFastCheckComparable(item);
         items.add(item);
         heapifyUp(size++);
         return size;
@@ -79,6 +77,19 @@ public class BinaryHeapImpl<T> implements BinaryHeap<T> {
     @Override
     public String toString() {
         return items.toString();
+    }
+
+    @Override
+    public Comparator<T> comparator() {
+        return comparator;
+    }
+
+    @Override
+    public BinaryHeapImpl<T> mergeWith(BinaryHeapImpl<T> other) {
+        this.items.addAll(other.items);
+        this.size += other.size;
+        restoreHeapOrder();
+        return this;
     }
 
     /**
@@ -152,9 +163,5 @@ public class BinaryHeapImpl<T> implements BinaryHeap<T> {
 
     private boolean greaterThan(int a, int b) {
         return comparator.compare(items.get(a), items.get(b)) > 0;
-    }
-
-    private void failFastCheckComparable(T item) {
-        comparator.compare(item, item);
     }
 }

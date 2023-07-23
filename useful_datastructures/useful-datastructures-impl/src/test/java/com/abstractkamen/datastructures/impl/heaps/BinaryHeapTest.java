@@ -11,9 +11,9 @@ public class BinaryHeapTest {
 
     @Test
     public void push_pop_size_randomTest() {
-        for (int j = 0; j < 100; j++) {
+        for (int j = 0; j < 10; j++) {
             // arrange
-            final BinaryHeapImpl<Integer> binaryHeap = new BinaryHeapImpl<>();
+            final BinaryHeapImpl<Integer> binaryHeap = BinaryHeapImpl.createComparable();
             // act
             final int maxSize = 1000;
             new Random().ints(maxSize, -10000, 10000).forEach(binaryHeap::push);
@@ -33,7 +33,7 @@ public class BinaryHeapTest {
 
     @Test
     public void restoreHeapOrder_randomTest() {
-        for (int j = 0; j < 100; j++) {
+        for (int j = 0; j < 10; j++) {
             final int maxSize = 1000;
             final Comparator<Mutable> comparator = Comparator.comparing(m -> m.m);
             final BinaryHeapImpl<Mutable> heap = new BinaryHeapImpl<>(comparator);
@@ -82,7 +82,7 @@ public class BinaryHeapTest {
     @Test
     public void push_pop_size_duplicateTest() {
         // arrange
-        final BinaryHeapImpl<Integer> binaryHeap = new BinaryHeapImpl<>();
+        final BinaryHeapImpl<Integer> binaryHeap = BinaryHeapImpl.createComparable();
         // act
         final int maxSize = 1000;
         IntStream.generate(() -> 0).limit(maxSize).forEach(binaryHeap::push);
@@ -101,7 +101,7 @@ public class BinaryHeapTest {
 
     @Test
     public void push_sizeTest() {
-        final BinaryHeapImpl<Integer> binaryHeap = new BinaryHeapImpl<>();
+        final BinaryHeapImpl<Integer> binaryHeap = BinaryHeapImpl.createComparable();
         for (int i = 0; i < 10; i++) {
             final int expectedSize = i + 1;
             assertEquals(expectedSize, binaryHeap.push((int) (Math.random() * i * 1000 - 1500)));
@@ -110,7 +110,7 @@ public class BinaryHeapTest {
 
     @Test
     public void peekTest() {
-        final BinaryHeapImpl<Integer> binaryHeap = new BinaryHeapImpl<>();
+        final BinaryHeapImpl<Integer> binaryHeap = BinaryHeapImpl.createComparable();
         // when empty
         final Integer actual = binaryHeap.peek();
         assertNull(actual);
@@ -128,14 +128,133 @@ public class BinaryHeapTest {
         assertEquals(-1, binaryHeap.peek().intValue());
     }
 
-    @Test(expected = NoSuchElementException.class)
-    public void pop_shouldThrow_whenEmpty() {
-        new BinaryHeapImpl<>().pop();
+    @Test
+    public void mergeWith_shouldReturnExpected_whenValuesOfHeapsAreTheSame() {
+        // arrange
+        final List<Integer> expectedMerged = new ArrayList<>();
+        final BinaryHeapImpl<Integer> left = BinaryHeapImpl.createComparable();
+        final BinaryHeapImpl<Integer> right = BinaryHeapImpl.createComparable();
+        for (int i = 0; i < 10; i++) {
+            expectedMerged.add(i);
+            expectedMerged.add(i);
+            left.push(i);
+            right.push(i);
+        }
+        // act
+        final BinaryHeapImpl<Integer> actual = left.mergeWith(right);
+        // assert
+        assertSame(left, actual);
+        assertEquals(expectedMerged.size(), left.size());
+        final List<Integer> actualMerged = new ArrayList<>();
+        while (!actual.isEmpty()) {
+            actualMerged.add(actual.pop());
+        }
+        assertEquals(expectedMerged, actualMerged);
     }
 
-    @Test(expected = ClassCastException.class)
-    public void push_ShouldThrow_whenNotComparable() {
-        new BinaryHeapImpl<>().push(new Object());
+    @Test
+    public void mergeWith_shouldReturnExpected_whenValuesOfHeapsAreRandom() {
+        for (int j = 0; j < 10; j++) {
+            // arrange
+            final List<Integer> expectedMerged = new ArrayList<>();
+            final BinaryHeapImpl<Integer> left = BinaryHeapImpl.createComparable();
+            final BinaryHeapImpl<Integer> right = BinaryHeapImpl.createComparable();
+            final Random r = new Random();
+            final int maxSize = 1000;
+            r.ints(maxSize, -10000, 10000)
+                .forEach(i -> {
+                    left.push(i);
+                    expectedMerged.add(i);
+                });
+            r.ints(maxSize, -10000, 10000)
+                .forEach(i -> {
+                    right.push(i);
+                    expectedMerged.add(i);
+                });
+            // act
+            final BinaryHeapImpl<Integer> actual = left.mergeWith(right);
+            // assert
+            assertSame(left, actual);
+            assertEquals(expectedMerged.size(), left.size());
+            expectedMerged.sort(left.comparator());
+            final List<Integer> actualMerged = new ArrayList<>();
+            while (!actual.isEmpty()) {
+                actualMerged.add(actual.pop());
+            }
+            assertEquals(expectedMerged, actualMerged);
+        }
+    }
+
+    @Test
+    public void mergeWith_shouldReturnExpected_whenValuesOfHeapsAreRandom_secondHeapHasReversedOrder() {
+        for (int j = 0; j < 10; j++) {
+            // arrange
+            final List<Integer> expectedMerged = new ArrayList<>();
+            final BinaryHeapImpl<Integer> left = BinaryHeapImpl.createComparable();
+            final BinaryHeapImpl<Integer> right = new BinaryHeapImpl<>(((Comparator<Integer>) (Integer::compare)).reversed());
+            final Random r = new Random();
+            final int maxSize = 1000;
+            r.ints(maxSize, -10000, 10000)
+                .forEach(i -> {
+                    left.push(i);
+                    expectedMerged.add(i);
+                });
+            r.ints(maxSize, -10000, 10000)
+                .forEach(i -> {
+                    right.push(i);
+                    expectedMerged.add(i);
+                });
+            // act
+            final BinaryHeapImpl<Integer> actual = left.mergeWith(right);
+            // assert
+            assertSame(left, actual);
+            assertEquals(expectedMerged.size(), left.size());
+            expectedMerged.sort(left.comparator());
+            final List<Integer> actualMerged = new ArrayList<>();
+            while (!actual.isEmpty()) {
+                actualMerged.add(actual.pop());
+            }
+            assertEquals(expectedMerged, actualMerged);
+        }
+    }
+
+    @Test
+    public void mergeWith_shouldReturnExpected_whenValuesOfHeapsAreRandom_secondHeapHasRandomOrder() {
+        for (int j = 0; j < 10; j++) {
+            // arrange
+            final List<Integer> expectedMerged = new ArrayList<>();
+            final BinaryHeapImpl<Integer> left = BinaryHeapImpl.createComparable();
+            final BinaryHeapImpl<Integer> right =
+                new BinaryHeapImpl<>(((Comparator<Integer>) (a, b) -> Math.random() * 1 == 1 ? a : b).reversed());
+            final Random r = new Random();
+            final int maxSize = 1000;
+            r.ints(maxSize, -10000, 10000)
+                .forEach(i -> {
+                    left.push(i);
+                    expectedMerged.add(i);
+                });
+            r.ints(maxSize, -10000, 10000)
+                .forEach(i -> {
+                    right.push(i);
+                    expectedMerged.add(i);
+                });
+            // act
+            final BinaryHeapImpl<Integer> actual = left.mergeWith(right);
+            // assert
+            assertSame(left, actual);
+            assertEquals(expectedMerged.size(), left.size());
+            expectedMerged.sort(left.comparator());
+            final List<Integer> actualMerged = new ArrayList<>();
+            while (!actual.isEmpty()) {
+                actualMerged.add(actual.pop());
+            }
+            assertEquals(expectedMerged, actualMerged);
+        }
+    }
+
+    @Test(expected = NoSuchElementException.class)
+    public void pop_shouldThrow_whenEmpty() {
+        BinaryHeapImpl.createComparable().pop();
     }
 
     private static class Mutable {

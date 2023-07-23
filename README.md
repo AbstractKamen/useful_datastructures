@@ -5,6 +5,9 @@ some useful datastructure implementations
 - ImmutableStack
   - Something I saw in a Kevlin Henney video and thought it was pretty cool. The actual video https://youtu.be/APUCMSPiNh4?t=2673
 
+##  Heaps
+  - Binary Heap
+
 ## Trees
 - BinarySearchTree
   - Avl implementation which permits duplicate elements

@@ -16,7 +16,7 @@ public class BinaryHeapTest {
             final BinaryHeapImpl<Integer> binaryHeap = new BinaryHeapImpl<>();
             // act
             final int maxSize = 1000;
-            new Random().ints(-10000, 10000).distinct().limit(maxSize).forEach(binaryHeap::push);
+            new Random().ints(maxSize, -10000, 10000).forEach(binaryHeap::push);
             assertEquals(maxSize, binaryHeap.size());
             // assert
             final List<Integer> expected = new ArrayList<>(binaryHeap.size());
@@ -32,23 +32,71 @@ public class BinaryHeapTest {
     }
 
     @Test
-    public void push_pop_size_duplicateTest() {
-            // arrange
-            final BinaryHeapImpl<Integer> binaryHeap = new BinaryHeapImpl<>();
-            // act
+    public void restoreHeapOrder_randomTest() {
+        for (int j = 0; j < 100; j++) {
             final int maxSize = 1000;
-            IntStream.generate(()-> 0).limit(maxSize).forEach(binaryHeap::push);
-            assertEquals(maxSize, binaryHeap.size());
-            // assert
-            final List<Integer> expected = new ArrayList<>(binaryHeap.size());
-            final List<Integer> actual = new ArrayList<>(binaryHeap.size());
-            while (!binaryHeap.isEmpty()) {
-                final int popped = binaryHeap.pop();
-                actual.add(popped);
-                expected.add(popped);
+            final Comparator<Mutable> comparator = Comparator.comparing(m -> m.m);
+            final BinaryHeapImpl<Mutable> heap = new BinaryHeapImpl<>(comparator);
+            final List<Mutable> mutablesSortedList = new ArrayList<>();
+            final Random r = new Random();
+            r.ints(maxSize, -10000, 10000)
+                .forEach(i -> {
+                    final Mutable mutable = new Mutable(i);
+                    heap.push(mutable);
+                    mutablesSortedList.add(mutable);
+                });
+            mutablesSortedList.sort(comparator);
+            assertEquals(mutablesSortedList.get(0), heap.peek());
+            for (Mutable mutable : mutablesSortedList) {
+                mutable.m = r.ints(1, -10000, 10000).sum();
             }
-            expected.sort(Integer::compare);
-            assertEquals(expected, actual);
+            final Mutable leastBeforeOrder = heap.peek();
+            assertEquals(mutablesSortedList.get(0), leastBeforeOrder);
+            heap.restoreHeapOrder();
+            mutablesSortedList.sort(comparator);
+            assertNotEquals(mutablesSortedList.get(0), leastBeforeOrder);
+            assertEquals(mutablesSortedList.get(0), heap.peek());
+            final List<Mutable> heapOrder = new ArrayList<>();
+            while (!heap.isEmpty()) {
+                heapOrder.add(heap.pop());
+            }
+            assertEquals(mutablesSortedList, heapOrder);
+        }
+    }
+
+    @Test
+    public void restoreHeapOrderTest() {
+        final BinaryHeapImpl<Mutable> heap = new BinaryHeapImpl<>(Comparator.comparing(m -> m.m));
+        // add numbers in order [i :: 10]
+        for (int i = 0; i < 10; i++) {
+            heap.push(new Mutable(i));
+        }
+        final Mutable least = heap.peek();
+        assertEquals(0, least.m);
+        least.m = 150;
+        assertEquals(least, heap.peek());
+        heap.restoreHeapOrder();
+        assertEquals(1, heap.peek().m);
+    }
+
+    @Test
+    public void push_pop_size_duplicateTest() {
+        // arrange
+        final BinaryHeapImpl<Integer> binaryHeap = new BinaryHeapImpl<>();
+        // act
+        final int maxSize = 1000;
+        IntStream.generate(() -> 0).limit(maxSize).forEach(binaryHeap::push);
+        assertEquals(maxSize, binaryHeap.size());
+        // assert
+        final List<Integer> expected = new ArrayList<>(binaryHeap.size());
+        final List<Integer> actual = new ArrayList<>(binaryHeap.size());
+        while (!binaryHeap.isEmpty()) {
+            final int popped = binaryHeap.pop();
+            actual.add(popped);
+            expected.add(popped);
+        }
+        expected.sort(Integer::compare);
+        assertEquals(expected, actual);
     }
 
     @Test
@@ -88,5 +136,31 @@ public class BinaryHeapTest {
     @Test(expected = ClassCastException.class)
     public void push_ShouldThrow_whenNotComparable() {
         new BinaryHeapImpl<>().push(new Object());
+    }
+
+    private static class Mutable {
+        int m;
+
+        Mutable(int m) {
+            this.m = m;
+        }
+
+        @Override
+        public String toString() {
+            return "" + m;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Mutable mutable = (Mutable) o;
+            return m == mutable.m;
+        }
+
+        @Override
+        public int hashCode() {
+            return m;
+        }
     }
 }

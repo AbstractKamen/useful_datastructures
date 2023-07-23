@@ -95,7 +95,7 @@ public class BinaryHeapImpl<T> implements BinaryHeap<T> {
      * with the keys of the elements, and the elements are unique based on their keys.
      * </p>
      */
-    private void restoreHeapOrder() {
+    public void restoreHeapOrder() {
         int i = (size >>> 1) - 1;
         for (; i >= 0; i--) {
             heapifyDown(i);

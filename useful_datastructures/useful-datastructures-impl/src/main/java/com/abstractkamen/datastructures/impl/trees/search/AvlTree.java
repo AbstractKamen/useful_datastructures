@@ -38,11 +38,11 @@ public class AvlTree<T> implements BinarySearchTree<T> {
     }
 
     /**
-     * Create an {@code AvlTree<T>} with natural order comparator. {@code T} is expected to be {@code instanceof Comparable<T>}
+     * Create an {@code AvlTree<T>} with natural order comparator in a type safe way.
      */
-    @SuppressWarnings("unchecked")
-    public AvlTree() {
-        this(Comparator.comparing(t -> ((Comparable<Object>) t)));
+    public static <T extends Comparable<T>> AvlTree<T> createComparable() {
+        final Comparator<T> c = Comparable::compareTo;
+        return new AvlTree<>(c);
     }
 
     @Override
@@ -57,14 +57,12 @@ public class AvlTree<T> implements BinarySearchTree<T> {
 
     @Override
     public void add(T item) {
-        failFastCheckComparable(item);
         this.root = insertNode(this.root, item);
         size++;
     }
 
     @Override
     public void remove(T item) {
-        failFastCheckComparable(item);
         final boolean[] isPresent = new boolean[1];
         this.root = removeNode(this.root, item, isPresent);
         if (root != null) {
@@ -78,13 +76,11 @@ public class AvlTree<T> implements BinarySearchTree<T> {
 
     @Override
     public boolean contains(T item) {
-        failFastCheckComparable(item);
         return findNode(null, this.root, item)[1] != null;
     }
 
     @Override
     public int containsCount(T item) {
-        failFastCheckComparable(item);
         final Node<T>[] n = findNode(null, this.root, item);
         if (n[1] != null) {
             return n[1].count;
@@ -306,7 +302,6 @@ public class AvlTree<T> implements BinarySearchTree<T> {
     }
 
     private T findItem(T item, Predicate<Node<T>> grThanOrLsThan, UnaryOperator<Node<T>> down, UnaryOperator<Node<T>> up) {
-        failFastCheckComparable(item);
         final Node<T>[] found = findNode(null, root, item);
         final Node<T> nodeWithItem = found[1];
         if (nodeWithItem != null) {
@@ -484,10 +479,6 @@ public class AvlTree<T> implements BinarySearchTree<T> {
             }
         }
         return null;
-    }
-
-    private void failFastCheckComparable(T item) {
-        comparator.compare(item, item);
     }
 
     private static class Node<T> {

@@ -17,31 +17,7 @@ public class AvlTreeTest {
 
     @Before
     public void init() {
-        tree = new AvlTree<>();
-    }
-
-    @Test(expected = ClassCastException.class)
-    public void add_shouldThrow_whenNotComparable() {
-        final AvlTree<Object> objects = new AvlTree<>();
-        objects.add(new Object());
-    }
-
-    @Test(expected = ClassCastException.class)
-    public void remove_shouldThrow_whenNotComparable() {
-        final AvlTree<Object> objects = new AvlTree<>();
-        objects.remove(new Object());
-    }
-
-    @Test(expected = ClassCastException.class)
-    public void contains_shouldThrow_whenNotComparable() {
-        final AvlTree<Object> objects = new AvlTree<>();
-        objects.contains(new Object());
-    }
-
-    @Test(expected = ClassCastException.class)
-    public void containsCount_shouldThrow_whenNotComparable() {
-        final AvlTree<Object> objects = new AvlTree<>();
-        objects.containsCount(new Object());
+        tree = AvlTree.createComparable();
     }
 
     @Test
@@ -67,6 +43,7 @@ public class AvlTreeTest {
         assertEquals(13, (int) tree.lesser(15));
         assertEquals(15, (int) tree.lesser(16));
     }
+
     @Test
     public void givenTree_greaterShouldReturnNull_WhenItemLesserThanOrEqualToMin() {
         tree.add(10);
@@ -88,17 +65,20 @@ public class AvlTreeTest {
         assertNull(tree.lesser(10));
     }
 
-    @Test(expected = ClassCastException.class)
-    public void givenNotComparable_lesserShouldThrowExpected() {
-        final AvlTree<Object> avlTree = new AvlTree<>();
-        avlTree.lesser(new Object());
-    }
-
     @Test(expected = NullPointerException.class)
     public void givenNull_lesserShouldThrowExpected() {
-        final AvlTree<Object> avlTree = new AvlTree<>();
+        final AvlTree<Integer> avlTree = AvlTree.createComparable();
+        avlTree.add(1);
         avlTree.lesser(null);
     }
+
+    @Test
+    public void givenNull_lesserShouldNotThrow_whenEmpty() {
+        final AvlTree<Integer> avlTree = AvlTree.createComparable();
+        final Integer actual = avlTree.lesser(null);
+        assertNull(actual);
+    }
+
     @Test
     public void givenTree_greaterShouldReturnExpected() {
         tree.add(10);
@@ -141,16 +121,18 @@ public class AvlTreeTest {
         assertNull(tree.greater(10));
     }
 
-    @Test(expected = ClassCastException.class)
-    public void givenNotComparable_greaterShouldThrowExpected() {
-        final AvlTree<Object> avlTree = new AvlTree<>();
-        avlTree.greater(new Object());
+    @Test(expected = NullPointerException.class)
+    public void givenNull_greaterShouldThrowExpected_whenNotEmpty() {
+        final AvlTree<Integer> avlTree = AvlTree.createComparable();
+        avlTree.add(1);
+        avlTree.greater(null);
     }
 
-    @Test(expected = NullPointerException.class)
-    public void givenNull_greaterShouldThrowExpected() {
-        final AvlTree<Object> avlTree = new AvlTree<>();
-        avlTree.greater(null);
+    @Test
+    public void givenNull_greaterShouldNotThrow_whenEmpty() {
+        final AvlTree<Integer> avlTree = AvlTree.createComparable();
+        final Integer actual = avlTree.greater(null);
+        assertNull(actual);
     }
 
 
@@ -244,7 +226,7 @@ public class AvlTreeTest {
 
     @Test
     public void test_isSize_withDuplicate() {
-        AvlTree<String> tree = new AvlTree<>();
+        AvlTree<String> tree = AvlTree.createComparable();
         assertEquals(0, tree.size());
         tree.add("one");
         assertEquals(1, tree.size());
@@ -258,7 +240,7 @@ public class AvlTreeTest {
 
     @Test
     public void test_isEmpty() {
-        AvlTree<String> tree = new AvlTree<>();
+        AvlTree<String> tree = AvlTree.createComparable();
         assertTrue(tree.isEmpty());
         tree.add("one");
         assertFalse(tree.isEmpty());
@@ -517,7 +499,7 @@ public class AvlTreeTest {
 
     @Test(expected = NoSuchElementException.class)
     public void testIterator_iteratesRemoveThrows_WhenEmpty() {
-        new AvlTree<>().iterator().remove();
+        AvlTree.createComparable().iterator().remove();
     }
 
     @Test

@@ -11,7 +11,7 @@ import java.util.*;
 public class AvlTreeDemo {
 
     public static void main(String[] args) {
-        final BinarySearchTree<Integer> avlTree = new AvlTree<>();
+        final BinarySearchTree<Integer> avlTree = AvlTree.createComparable();
         final TreeSet<Integer> treeSet = new TreeSet<>();
         demoCurrentState(avlTree, treeSet);
         demoAdd(avlTree, treeSet, 13, 5, 11, 3, 7, 17);

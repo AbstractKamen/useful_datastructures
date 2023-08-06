@@ -15,25 +15,26 @@ import java.util.NoSuchElementException;
  *
  * @param <T> The type of elements stored in the binary heap.
  */
-public class BinaryHeapImpl<T> implements Heap<T>, MergeableHeap<BinaryHeapImpl<T>> {
+public class BinaryHeap<T> implements Heap<T>, MergeableHeap<T> {
     private final Comparator<T> comparator;
     private final List<T> items = new ArrayList<>();
     private int size;
 
     /**
-     * Create an {@code BinaryHeapImpl<T>} with a custom comparator
+     * Create an {@code BinaryHeap<T>} with a custom comparator
+     *
      * @param comparator custom comparator
      */
-    public BinaryHeapImpl(Comparator<T> comparator) {
+    public BinaryHeap(Comparator<T> comparator) {
         this.comparator = comparator;
     }
 
     /**
-     * Create an {@code BinaryHeapImpl<T>} with natural order comparator in a type safe way.
+     * Create an {@code BinaryHeap<T>} with natural order comparator in a type safe way.
      */
-    public static <T extends Comparable<T>> BinaryHeapImpl<T> createComparable() {
+    public static <T extends Comparable<T>> BinaryHeap<T> createComparable() {
         final Comparator<T> c = Comparable::compareTo;
-        return new BinaryHeapImpl<>(c);
+        return new BinaryHeap<>(c);
     }
 
     @Override
@@ -85,9 +86,11 @@ public class BinaryHeapImpl<T> implements Heap<T>, MergeableHeap<BinaryHeapImpl<
     }
 
     @Override
-    public BinaryHeapImpl<T> mergeWith(BinaryHeapImpl<T> other) {
-        this.items.addAll(other.items);
-        this.size += other.size;
+    public BinaryHeap<T> mergeWith(Heap<T> other) {
+        if (!(other instanceof BinaryHeap)) throw new ClassCastException("other must be an instance of BinaryHeap");
+        final BinaryHeap<T> cast = (BinaryHeap<T>) other;
+        this.items.addAll(cast.items);
+        this.size += cast.size;
         restoreHeapOrder();
         return this;
     }
@@ -114,10 +117,13 @@ public class BinaryHeapImpl<T> implements Heap<T>, MergeableHeap<BinaryHeapImpl<
     }
 
     private void heapifyDown(int i) {
-        final int smallest = smallestChild(i);
-        if (smallest != i) {
+        while (true) {
+            final int smallest = smallestChild(i);
+            if (smallest == i) {
+                return;
+            }
             swap(i, smallest);
-            heapifyDown(smallest);
+            i = smallest;
         }
     }
 
@@ -135,11 +141,14 @@ public class BinaryHeapImpl<T> implements Heap<T>, MergeableHeap<BinaryHeapImpl<
     }
 
     private void heapifyUp(int i) {
-        if (i <= 0) return;
-        final int parent = parent(i);
-        if (parent >= 0 && greaterThan(parent, i)) {
-            swap(i, parent);
-            heapifyUp(parent);
+        while (i > 0) {
+            final int parent = parent(i);
+            if (greaterThan(parent, i)) {
+                swap(i, parent);
+                i = parent;
+            } else {
+                return;
+            }
         }
     }
 

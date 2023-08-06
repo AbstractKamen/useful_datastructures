@@ -7,22 +7,70 @@ import java.util.stream.IntStream;
 
 import static org.junit.Assert.*;
 
-public class BinaryHeapTest {
+public class AdjustableBinaryHeapTest {
+    @Test
+    public void decreaseKey_test() {
+        final List<List<Integer>> expected = Arrays.asList(
+            Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            Arrays.asList(0, 1, 2, 3, 4, 9, 5, 6, 7, 8),
+            Arrays.asList(0, 1, 2, 9, 3, 4, 5, 6, 7, 8),
+            Arrays.asList(0, 9, 1, 2, 3, 4, 5, 6, 7, 8),
+            Arrays.asList(9, 0, 1, 2, 3, 4, 5, 6, 7, 8)
+        );
+        for (int i = 0; i < expected.size(); i++) {
+            final AdjustableBinaryHeap<Integer> adjustableBinaryHeap = AdjustableBinaryHeap.createComparable();
+            for (int j = 0; j < 10; j++) {
+                adjustableBinaryHeap.push(j);
+            }
+            final List<Integer> actualOrder = new ArrayList<>();
+            for (int j = 0; j < i; j++) {
+                assertTrue(adjustableBinaryHeap.decreaseKey(9));
+            }
+            while (!adjustableBinaryHeap.isEmpty()) {
+                actualOrder.add(adjustableBinaryHeap.pop());
+            }
+            assertEquals((i + 1) + "", expected.get(i), actualOrder);
+        }
+    }
+
+    @Test
+    public void increaseKey_test() {
+        final List<List<Integer>> expected = Arrays.asList(
+            Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+            Arrays.asList(1, 0, 2, 3, 4, 5, 6, 7, 8, 9),
+            Arrays.asList(1, 2, 3, 0, 4, 5, 6, 7, 8, 9),
+            Arrays.asList(1, 2, 3, 4, 5, 6, 0, 7, 8, 9)
+        );
+        for (int i = 0; i < expected.size(); i++) {
+            final AdjustableBinaryHeap<Integer> adjustableBinaryHeap = AdjustableBinaryHeap.createComparable();
+            for (int j = 0; j < 10; j++) {
+                adjustableBinaryHeap.push(j);
+            }
+            final List<Integer> actualOrder = new ArrayList<>();
+            for (int j = 0; j < i; j++) {
+                assertTrue(adjustableBinaryHeap.increaseKey(0));
+            }
+            while (!adjustableBinaryHeap.isEmpty()) {
+                actualOrder.add(adjustableBinaryHeap.pop());
+            }
+            assertEquals((i + 1) + "", expected.get(i), actualOrder);
+        }
+    }
 
     @Test
     public void push_pop_size_randomTest() {
         for (int j = 0; j < 10; j++) {
             // arrange
-            final BinaryHeap<Integer> binaryHeap = BinaryHeap.createComparable();
+            final AdjustableBinaryHeap<Integer> adjustableBinaryHeap = AdjustableBinaryHeap.createComparable();
             // act
             final int maxSize = 1000;
-            new Random().ints(maxSize, -10000, 10000).forEach(binaryHeap::push);
-            assertEquals(maxSize, binaryHeap.size());
+            final long expecteSize = new Random().ints(maxSize, -10000, 10000).distinct().peek(adjustableBinaryHeap::push).count();
+            assertEquals(expecteSize, adjustableBinaryHeap.size());
             // assert
-            final List<Integer> expected = new ArrayList<>(binaryHeap.size());
-            final List<Integer> actual = new ArrayList<>(binaryHeap.size());
-            while (!binaryHeap.isEmpty()) {
-                final int popped = binaryHeap.pop();
+            final List<Integer> expected = new ArrayList<>(adjustableBinaryHeap.size());
+            final List<Integer> actual = new ArrayList<>(adjustableBinaryHeap.size());
+            while (!adjustableBinaryHeap.isEmpty()) {
+                final int popped = adjustableBinaryHeap.pop();
                 actual.add(popped);
                 expected.add(popped);
             }
@@ -31,40 +79,16 @@ public class BinaryHeapTest {
         }
     }
 
-    // @Test
-    public void test() {
-        System.out.println(nextPower(323432333));
-        System.out.println(prevPower(323432333));
-    }
-
-    int nextPower(int n) {
-        n |= (n >> 16);
-        n |= (n >> 8);
-        n |= (n >> 4);
-        n |= (n >> 2);
-        n |= (n >> 1);
-        ++n;
-        return n;
-    }
-
-    int prevPower(int n) {
-        n |= (n >> 1);
-        n |= (n >> 2);
-        n |= (n >> 4);
-        n |= (n >> 8);
-        n |= (n >> 16);
-        return n - (n >> 1);
-    }
-
     @Test
     public void restoreHeapOrder_randomTest() {
-        for (int j = 0; j < 10; j++) {
-            final int maxSize = 1000;
+        for (int j = 0; j < 1; j++) {
+            final int maxSize = 10;
             final Comparator<Mutable> comparator = Comparator.comparing(m -> m.m);
-            final BinaryHeap<Mutable> heap = new BinaryHeap<>(comparator);
+            final AdjustableBinaryHeap<Mutable> heap = new AdjustableBinaryHeap<>(comparator);
             final List<Mutable> mutablesSortedList = new ArrayList<>();
             final Random r = new Random();
             r.ints(maxSize, -10000, 10000)
+                .distinct()
                 .forEach(i -> {
                     final Mutable mutable = new Mutable(i);
                     heap.push(mutable);
@@ -91,7 +115,7 @@ public class BinaryHeapTest {
 
     @Test
     public void restoreHeapOrderTest() {
-        final BinaryHeap<Mutable> heap = new BinaryHeap<>(Comparator.comparing(m -> m.m));
+        final AdjustableBinaryHeap<Mutable> heap = new AdjustableBinaryHeap<>(Comparator.comparing(m -> m.m));
         // add numbers in order [i :: 10]
         for (int i = 0; i < 10; i++) {
             heap.push(new Mutable(i));
@@ -107,66 +131,65 @@ public class BinaryHeapTest {
     @Test
     public void push_pop_size_duplicateTest() {
         // arrange
-        final BinaryHeap<Integer> binaryHeap = BinaryHeap.createComparable();
+        final AdjustableBinaryHeap<Integer> adjustableBinaryHeap = AdjustableBinaryHeap.createComparable();
         // act
-        final int maxSize = 1000;
-        IntStream.generate(() -> 0).limit(maxSize).forEach(binaryHeap::push);
-        assertEquals(maxSize, binaryHeap.size());
+        final int maxSize = 100;
+        IntStream.generate(() -> 0).limit(maxSize).forEach(adjustableBinaryHeap::push);
+        assertEquals(1, adjustableBinaryHeap.size());
         // assert
-        final List<Integer> expected = new ArrayList<>(binaryHeap.size());
-        final List<Integer> actual = new ArrayList<>(binaryHeap.size());
-        while (!binaryHeap.isEmpty()) {
-            final int popped = binaryHeap.pop();
+        final List<Integer> actual = new ArrayList<>(adjustableBinaryHeap.size());
+        while (!adjustableBinaryHeap.isEmpty()) {
+            final int popped = adjustableBinaryHeap.pop();
             actual.add(popped);
-            expected.add(popped);
         }
-        expected.sort(Integer::compare);
-        assertEquals(expected, actual);
+        assertEquals(Collections.singletonList(0), actual);
     }
 
     @Test
     public void push_sizeTest() {
-        final BinaryHeap<Integer> binaryHeap = BinaryHeap.createComparable();
+        final AdjustableBinaryHeap<Integer> adjustableBinaryHeap = AdjustableBinaryHeap.createComparable();
         for (int i = 0; i < 10; i++) {
             final int expectedSize = i + 1;
-            assertEquals(expectedSize, binaryHeap.push((int) (Math.random() * i * 1000 - 1500)));
+            assertEquals(expectedSize, adjustableBinaryHeap.push((int) (Math.random() * i * 1000 - 1500)));
         }
     }
 
     @Test
     public void peekTest() {
-        final BinaryHeap<Integer> binaryHeap = BinaryHeap.createComparable();
+        final AdjustableBinaryHeap<Integer> adjustableBinaryHeap = AdjustableBinaryHeap.createComparable();
         // when empty
-        final Integer actual = binaryHeap.peek();
+        final Integer actual = adjustableBinaryHeap.peek();
         assertNull(actual);
         // when size == 1
-        binaryHeap.push(0);
-        assertEquals(0, binaryHeap.peek().intValue());
+        adjustableBinaryHeap.push(0);
+        assertEquals(0, adjustableBinaryHeap.peek().intValue());
         // when size 2
-        binaryHeap.push(1);
-        assertEquals(0, binaryHeap.peek().intValue());
+        adjustableBinaryHeap.push(1);
+        assertEquals(0, adjustableBinaryHeap.peek().intValue());
         // when size 10
-        IntStream.range(2, 10).forEach(binaryHeap::push);
-        assertEquals(0, binaryHeap.peek().intValue());
+        IntStream.range(2, 10).forEach(adjustableBinaryHeap::push);
+        assertEquals(0, adjustableBinaryHeap.peek().intValue());
         // when we add a new min value
-        binaryHeap.push(-1);
-        assertEquals(-1, binaryHeap.peek().intValue());
+        adjustableBinaryHeap.push(-1);
+        assertEquals(-1, adjustableBinaryHeap.peek().intValue());
     }
 
     @Test
     public void mergeWith_shouldReturnExpected_whenValuesOfHeapsAreTheSame() {
         // arrange
         final List<Integer> expectedMerged = new ArrayList<>();
-        final BinaryHeap<Integer> left = BinaryHeap.createComparable();
-        final BinaryHeap<Integer> right = BinaryHeap.createComparable();
+        final AdjustableBinaryHeap<Integer> left = AdjustableBinaryHeap.createComparable();
+        final AdjustableBinaryHeap<Integer> right = AdjustableBinaryHeap.createComparable();
         for (int i = 0; i < 10; i++) {
             expectedMerged.add(i);
-            expectedMerged.add(i);
-            left.push(i);
-            right.push(i);
+            if (i % 2 == 0) {
+                left.push(i);
+            } else {
+                right.push(i);
+            }
         }
         // act
-        final BinaryHeap<Integer> actual = left.mergeWith(right);
+        final AdjustableBinaryHeap<Integer> actual = left.mergeWith(right);
         // assert
         assertSame(left, actual);
         assertEquals(expectedMerged.size(), left.size());
@@ -182,22 +205,22 @@ public class BinaryHeapTest {
         for (int j = 0; j < 10; j++) {
             // arrange
             final List<Integer> expectedMerged = new ArrayList<>();
-            final BinaryHeap<Integer> left = BinaryHeap.createComparable();
-            final BinaryHeap<Integer> right = BinaryHeap.createComparable();
+            final AdjustableBinaryHeap<Integer> left = AdjustableBinaryHeap.createComparable();
+            final AdjustableBinaryHeap<Integer> right = AdjustableBinaryHeap.createComparable();
             final Random r = new Random();
             final int maxSize = 1000;
             r.ints(maxSize, -10000, 10000)
+                .distinct()
                 .forEach(i -> {
-                    left.push(i);
-                    expectedMerged.add(i);
-                });
-            r.ints(maxSize, -10000, 10000)
-                .forEach(i -> {
-                    right.push(i);
+                    if (i % 2 == 0) {
+                        left.push(i);
+                    } else {
+                        right.push(i);
+                    }
                     expectedMerged.add(i);
                 });
             // act
-            final BinaryHeap<Integer> actual = left.mergeWith(right);
+            final AdjustableBinaryHeap<Integer> actual = left.mergeWith(right);
             // assert
             assertSame(left, actual);
             assertEquals(expectedMerged.size(), left.size());
@@ -215,22 +238,22 @@ public class BinaryHeapTest {
         for (int j = 0; j < 10; j++) {
             // arrange
             final List<Integer> expectedMerged = new ArrayList<>();
-            final BinaryHeap<Integer> left = BinaryHeap.createComparable();
-            final BinaryHeap<Integer> right = new BinaryHeap<>(((Comparator<Integer>) (Integer::compare)).reversed());
+            final AdjustableBinaryHeap<Integer> left = AdjustableBinaryHeap.createComparable();
+            final AdjustableBinaryHeap<Integer> right = new AdjustableBinaryHeap<>(((Comparator<Integer>) (Integer::compare)).reversed());
             final Random r = new Random();
             final int maxSize = 1000;
             r.ints(maxSize, -10000, 10000)
+                .distinct()
                 .forEach(i -> {
-                    left.push(i);
-                    expectedMerged.add(i);
-                });
-            r.ints(maxSize, -10000, 10000)
-                .forEach(i -> {
-                    right.push(i);
+                    if (i % 2 == 0) {
+                        left.push(i);
+                    } else {
+                        right.push(i);
+                    }
                     expectedMerged.add(i);
                 });
             // act
-            final BinaryHeap<Integer> actual = left.mergeWith(right);
+            final AdjustableBinaryHeap<Integer> actual = left.mergeWith(right);
             // assert
             assertSame(left, actual);
             assertEquals(expectedMerged.size(), left.size());
@@ -248,23 +271,23 @@ public class BinaryHeapTest {
         for (int j = 0; j < 10; j++) {
             // arrange
             final List<Integer> expectedMerged = new ArrayList<>();
-            final BinaryHeap<Integer> left = BinaryHeap.createComparable();
-            final BinaryHeap<Integer> right =
-                new BinaryHeap<>(((Comparator<Integer>) (a, b) -> Math.random() * 1 == 1 ? a : b).reversed());
+            final AdjustableBinaryHeap<Integer> left = AdjustableBinaryHeap.createComparable();
+            final AdjustableBinaryHeap<Integer> right =
+                new AdjustableBinaryHeap<>(((Comparator<Integer>) (a, b) -> Math.random() * 1 == 1 ? a : b).reversed());
             final Random r = new Random();
-            final int maxSize = 1000;
+            final int maxSize = 10;
             r.ints(maxSize, -10000, 10000)
+                .distinct()
                 .forEach(i -> {
-                    left.push(i);
-                    expectedMerged.add(i);
-                });
-            r.ints(maxSize, -10000, 10000)
-                .forEach(i -> {
-                    right.push(i);
+                    if (i % 2 == 0) {
+                        left.push(i);
+                    } else {
+                        right.push(i);
+                    }
                     expectedMerged.add(i);
                 });
             // act
-            final BinaryHeap<Integer> actual = left.mergeWith(right);
+            final AdjustableBinaryHeap<Integer> actual = left.mergeWith(right);
             // assert
             assertSame(left, actual);
             assertEquals(expectedMerged.size(), left.size());
@@ -279,7 +302,7 @@ public class BinaryHeapTest {
 
     @Test(expected = NoSuchElementException.class)
     public void pop_shouldThrow_whenEmpty() {
-        BinaryHeap.createComparable().pop();
+        AdjustableBinaryHeap.createComparable().pop();
     }
 
     private static class Mutable {

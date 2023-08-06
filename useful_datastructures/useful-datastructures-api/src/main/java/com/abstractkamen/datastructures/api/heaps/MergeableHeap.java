@@ -1,6 +1,7 @@
 package com.abstractkamen.datastructures.api.heaps;
 
 /**
+ * <p>
  * A mergeable heap data structure is a heap that allows for efficient merging of two heaps
  * into a single heap. Elements stored in the heap must be comparable, and the provided
  * comparator defines the ordering of the elements.

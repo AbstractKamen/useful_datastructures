@@ -27,10 +27,18 @@ public class PrefixTrieImpl implements PrefixTrie {
      */
     private int size;
 
+    /**
+     * Constructor
+     */
     public PrefixTrieImpl() {
         this.root = new PrefixTrieNode();
     }
 
+    /**
+     * Get the root of this tree.
+     *
+     * @return root of this tree which can never be null
+     */
     protected PrefixTrieNode getRoot() {
         return root;
     }
@@ -104,8 +112,9 @@ public class PrefixTrieImpl implements PrefixTrie {
     /**
      * Visit a node which we know is a word.
      *
-     * @param node word node
-     * @param visitor sb visitor
+     * @param node         word node
+     * @param visitor      sb visitor
+     * @param currentChars word so far
      */
     protected void visitWordNode(PrefixTrieNode node, StringBuilder visitor, StringBuilder currentChars) {
         // if current is word append the whole word to the current node
@@ -118,9 +127,10 @@ public class PrefixTrieImpl implements PrefixTrie {
      * Inserts a word character by character where first a character is lookup in the root and if it's missing a new node is created and
      * appended to the root after which the algorithm is repeated recursively until we reach the end of the word. The final result of the
      * recursion will be the leaf node.
-     * @param word input sting
-     * @param root root node
-     * @param i current character index
+     *
+     * @param word    input sting
+     * @param root    root node
+     * @param i       current character index
      * @param factory node factory - useful in extensions
      * @return the 'inserted' node
      */
@@ -142,12 +152,14 @@ public class PrefixTrieImpl implements PrefixTrie {
     /**
      * Searching method for this trie. Will walk through all characters in needle and find a possible path of nodes for them. If the path
      * exists return true.
-     * @param n current node
-     * @param needle string
-     * @param i offset
-     * @param result string storage
-     * @param resultLimit storage limit
-     * @param resultTest add to result collection if true
+     *
+     * @param n            current node
+     * @param needle       string
+     * @param i            offset
+     * @param result       string storage
+     * @param resultLimit  storage limit
+     * @param resultTest   add to result collection if true
+     * @param currentChars word so far
      * @return true if a needle path exists
      */
     protected boolean search(PrefixTrieNode n, String needle, int i, Collection<String> result, int resultLimit,
@@ -180,6 +192,14 @@ public class PrefixTrieImpl implements PrefixTrie {
         }
     }
 
+    /**
+     * Internal protected delete for this tree implementation.
+     *
+     * @param n    current node
+     * @param word word to delete
+     * @param i    current index
+     * @return true if word was deleted
+     */
     protected boolean delete(PrefixTrieNode n, String word, int i) {
         if (n == null || i > word.length()) {
             return false;
@@ -260,6 +280,9 @@ public class PrefixTrieImpl implements PrefixTrie {
         }
     }
 
+    /**
+     * Node structure for this tree implementation.
+     */
     protected static class PrefixTrieNode {
 
         private final Map<Integer, PrefixTrieNode> children;
@@ -267,44 +290,85 @@ public class PrefixTrieImpl implements PrefixTrie {
         private int c;
         private PrefixTrieNode parent;
 
+        /**
+         * Root Constructor
+         */
         PrefixTrieNode() {
             children = new TreeMap<>();
         }
 
+        /**
+         * Char Constructor
+         *
+         * @param c      char key
+         * @param parent parent
+         */
         PrefixTrieNode(int c, PrefixTrieNode parent) {
             this();
             this.c = c;
             this.parent = parent;
         }
 
+        /**
+         * Set flag of this node marking it as the last char of a word.
+         *
+         * @param isWord flag to set
+         */
         void setIsWord(boolean isWord) {
             this.isWord = isWord;
         }
 
+        /**
+         * Add child to this node.
+         *
+         * @param c     char key of child
+         * @param child child
+         */
         void addChild(int c, PrefixTrieNode child) {
             this.children.put(c, child);
         }
 
-        void setC(int c) {
-            this.c = c;
-        }
-
+        /**
+         * Get the int key of this node.
+         *
+         * @return char key
+         */
         int getC() {
             return c;
         }
 
+        /**
+         * Get the char key of this node.
+         *
+         * @return char key
+         */
         char getChar() {
             return (char) c;
         }
 
+        /**
+         * Get children of this node.
+         *
+         * @return children
+         */
         Map<Integer, PrefixTrieNode> getChildren() {
             return children;
         }
 
+        /**
+         * Get parent of this node.
+         *
+         * @return parent
+         */
         PrefixTrieNode getParent() {
             return parent;
         }
 
+        /**
+         * See if this node is marked as an end of a word in the tree.
+         *
+         * @return true if node is last char of word
+         */
         boolean isWord() {
             return isWord;
         }

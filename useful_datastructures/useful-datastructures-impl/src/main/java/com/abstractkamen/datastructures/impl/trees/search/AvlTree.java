@@ -39,6 +39,7 @@ public class AvlTree<T> implements BinarySearchTree<T> {
 
     /**
      * Create an {@code AvlTree<T>} with natural order comparator in a type safe way.
+     * @param <T> comparable type
      */
     public static <T extends Comparable<T>> AvlTree<T> createComparable() {
         final Comparator<T> c = Comparable::compareTo;

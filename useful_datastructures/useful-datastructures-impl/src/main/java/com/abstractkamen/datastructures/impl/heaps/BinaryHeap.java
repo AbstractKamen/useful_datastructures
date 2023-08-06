@@ -31,6 +31,7 @@ public class BinaryHeap<T> implements Heap<T>, MergeableHeap<T> {
 
     /**
      * Create an {@code BinaryHeap<T>} with natural order comparator in a type safe way.
+     * @param <T> comparable type
      */
     public static <T extends Comparable<T>> BinaryHeap<T> createComparable() {
         final Comparator<T> c = Comparable::compareTo;

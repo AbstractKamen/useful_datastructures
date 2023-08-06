@@ -48,6 +48,7 @@ public class AdjustableBinaryHeap<T> implements Heap<T>, MergeableHeap<T>, Adjus
      * Create an {@code AdjustableBinaryHeap<T>} with a custom comparator
      *
      * @param comparator custom comparator
+     *
      */
     public AdjustableBinaryHeap(Comparator<T> comparator) {
         this.comparator = comparator;
@@ -57,6 +58,7 @@ public class AdjustableBinaryHeap<T> implements Heap<T>, MergeableHeap<T>, Adjus
 
     /**
      * Create an {@code AdjustableBinaryHeap<T>} with natural order comparator in a type safe way.
+     * @param <T> comparable type
      */
     public static <T extends Comparable<T>> AdjustableBinaryHeap<T> createComparable() {
         final Comparator<T> c = Comparable::compareTo;

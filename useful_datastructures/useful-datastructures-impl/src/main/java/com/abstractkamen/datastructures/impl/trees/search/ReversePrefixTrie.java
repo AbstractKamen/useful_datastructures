@@ -82,16 +82,6 @@ public class ReversePrefixTrie extends PrefixTrieImpl implements SuffixTrie {
         return strings.toString();
     }
 
-    @Override
-    public String longestCommonSubstring() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Collection<String> substringWith(String substring, int limit) {
-        throw new UnsupportedOperationException();
-    }
-
     private String getReversedString(String string) {
         return new StringBuilder(string).reverse().toString();
     }
@@ -104,11 +94,11 @@ public class ReversePrefixTrie extends PrefixTrieImpl implements SuffixTrie {
 
         /**
          * Copies the template and replaces it in its parent.
+         *
          * @param template node
          */
         ReversePrefixTrieNode(PrefixTrieNode template) {
             super(template.getC(), template.getParent());
-            setC(template.getC());
             setIsWord(true);
             template.getChildren().forEach(this::addChild);
             template.getParent().addChild(getC(), this);

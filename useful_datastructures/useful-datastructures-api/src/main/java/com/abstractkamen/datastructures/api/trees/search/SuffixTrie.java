@@ -23,8 +23,4 @@ public interface SuffixTrie extends PrefixTrie {
      * @return true if suffix exists
      */
     boolean isSuffix(String suffix);
-
-    String longestCommonSubstring();
-
-    Collection<String> substringWith(String substring, int limit);
 }

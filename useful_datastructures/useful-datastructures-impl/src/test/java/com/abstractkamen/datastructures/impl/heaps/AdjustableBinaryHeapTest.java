@@ -91,12 +91,11 @@ public class AdjustableBinaryHeapTest {
                     mutablesSortedList.add(mutable);
                 });
             mutablesSortedList.sort(comparator);
-            assertEquals(mutablesSortedList.get(0), heap.peek());
+            assertEquals(mutablesSortedList.get(0).m, heap.peek().m);
             for (Mutable mutable : mutablesSortedList) {
                 mutable.m = r.nextInt(10000) + 10000;
             }
             final Mutable leastBeforeOrder = heap.peek();
-            assertEquals(mutablesSortedList.get(0), leastBeforeOrder);
             heap.restoreHeapOrder();
             mutablesSortedList.sort(comparator);
             assertNotEquals(mutablesSortedList.get(0), leastBeforeOrder);

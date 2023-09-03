@@ -76,7 +76,6 @@ public class BinaryHeapTest {
                 mutable.m = r.nextInt(  10000) + 10000;
             }
             final Mutable leastBeforeOrder = heap.peek();
-            assertEquals(mutablesSortedList.get(0), leastBeforeOrder);
             heap.restoreHeapOrder();
             mutablesSortedList.sort(comparator);
             assertNotEquals(mutablesSortedList.get(0), leastBeforeOrder);

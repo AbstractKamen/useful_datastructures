@@ -58,7 +58,7 @@ public class BinaryHeapTest {
 
     @Test
     public void restoreHeapOrder_randomTest() {
-        for (int j = 0; j < 10; j++) {
+        for (int j = 0; j < 100; j++) {
             final int maxSize = 1000;
             final Comparator<Mutable> comparator = Comparator.comparing(m -> m.m);
             final BinaryHeap<Mutable> heap = new BinaryHeap<>(comparator);
@@ -73,7 +73,7 @@ public class BinaryHeapTest {
             mutablesSortedList.sort(comparator);
             assertEquals(mutablesSortedList.get(0), heap.peek());
             for (Mutable mutable : mutablesSortedList) {
-                mutable.m = r.ints(1, 10001, 100000).sum();
+                mutable.m = r.nextInt(  10000) + 10000;
             }
             final Mutable leastBeforeOrder = heap.peek();
             assertEquals(mutablesSortedList.get(0), leastBeforeOrder);

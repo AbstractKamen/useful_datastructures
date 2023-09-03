@@ -3,11 +3,11 @@ package com.abstractkamen.datastructures.impl.trees.search.demos;
 import com.abstractkamen.datastructures.impl.heaps.AdjustableBinaryHeap;
 
 import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
+import java.util.function.*;
 
 public class AdjustableBinaryHeapDemo {
+
+    private static final int NUM_VERTICES = 100000;
 
     public static void main(String[] args) {
         System.out.println("""
@@ -33,32 +33,74 @@ public class AdjustableBinaryHeapDemo {
                                """);
         final BiConsumer<AdjustableBinaryHeap<Vertex>, Vertex> push = AdjustableBinaryHeap::push;
         final BiConsumer<AdjustableBinaryHeap<Vertex>, Vertex> heapUse = (a, b) -> {
-            if (a.containsKey(b)) {
-                a.decreaseKey(b);
-            } else {
-                a.push(b);
-            }
+            a.decreaseKey(b, b);
         };
-        final BiConsumer<PriorityQueue<Vertex>, Vertex> queueOffer = PriorityQueue::offer;
-        for (int i = 0; i < 12; i++) {
-            final AdjustableBinaryHeap<Vertex> adjustableBinaryHeap = AdjustableBinaryHeap.createComparable();
-            final PriorityQueue<Vertex> priorityQueue = new PriorityQueue<>();
-            final List<Vertex> dagVertices1 = getGraph();
-            final List<Vertex> dagVertices2 = getGraph();
-            final DijkstraAlgorithm heapAlgorithm = DijkstraAlgorithm.createDefault(AdjustableBinaryHeap::pop, push, heapUse,
-                                                                                    adjustableBinaryHeap, AdjustableBinaryHeap::isEmpty);
-            final DijkstraAlgorithm queueAlgorithm = DijkstraAlgorithm.createDefault(PriorityQueue::poll, queueOffer, queueOffer,
-                                                                                     priorityQueue, PriorityQueue::isEmpty);
-            heapAlgorithm.computePath(dagVertices1.get(i));
-            queueAlgorithm.computePath(dagVertices2.get(i));
+        final BiConsumer<PriorityQueue<Vertex>, Vertex> queueOffer = (q, v) -> {
+            q.remove(v);
+            q.offer(v);
+        };
+        final AdjustableBinaryHeap<Vertex> adjustableBinaryHeap = AdjustableBinaryHeap.createComparable(NUM_VERTICES);
+        final PriorityQueue<Vertex> priorityQueue = new PriorityQueue<>(NUM_VERTICES);
+        final double[] weights = new Random().doubles(1000, 0, 1000).toArray();
+        final List<Vertex> dagVertices1 = generateDAG(weights);
+        final List<Vertex> dagVertices2 = generateDAG(weights);
+        final DijkstraAlgorithm heapAlgorithm = DijkstraAlgorithm.createDefault(AdjustableBinaryHeap::pop, push, heapUse,
+                                                                                adjustableBinaryHeap, AdjustableBinaryHeap::isEmpty);
+        final DijkstraAlgorithm queueAlgorithm = DijkstraAlgorithm.createDefault(PriorityQueue::poll, queueOffer, queueOffer,
+                                                                                 priorityQueue, PriorityQueue::isEmpty);
+        final long s1 = System.currentTimeMillis();
+        heapAlgorithm.computePath(dagVertices1.get(0));
+        final long heapEnd = System.currentTimeMillis() - s1;
+        final long s2 = System.currentTimeMillis();
+        queueAlgorithm.computePath(dagVertices2.get(0));
+        final long queueEnd = System.currentTimeMillis() - s2;
+        final double h = heapAlgorithm.getShortestPathDistanceTo(dagVertices1.get(dagVertices1.size() - 1));
+        final double q = queueAlgorithm.getShortestPathDistanceTo(dagVertices2.get(dagVertices2.size() - 1));
+        if (h != q) throw new AssertionError();
+//        System.out.println(h);
+//        System.out.println(q);
+        System.out.printf("heap:%.3f|||queue:%.3f", heapEnd / 1000f, queueEnd / 1000f);
+    }
 
-            for (int j = 0; j < 12; j++) {
-                final List<Vertex> h = heapAlgorithm.getShortestPathTo(dagVertices1.get(j));
-                final List<Vertex> q = queueAlgorithm.getShortestPathTo(dagVertices2.get(j));
-                if (!q.equals(h)) throw new AssertionError();
-                System.out.println(h);
-                System.out.println(q);
+    public static List<Vertex> generateDAG(double[] weights) {
+        List<Vertex> vertices = new ArrayList<>();
+
+        // Create vertices
+        for (int i = 0; i < NUM_VERTICES; i++) {
+            Vertex vertex = new Vertex("V" + i);
+            vertices.add(vertex);
+        }
+
+        for (int i = 0; i < NUM_VERTICES - 1; i++) {
+            int numEdges = 50;
+            Vertex startVertex = vertices.get(i);
+
+            final Vertex targetVertex = vertices.get(i + 1);
+            for (int j = 0; j < numEdges; j++) {
+                if (i - j >= 0) {
+                    final Vertex prevVertex = vertices.get(i - j);
+                    link(weights[(i -j) % weights.length], startVertex, prevVertex);
+                }
+                if (i + j < NUM_VERTICES) {
+                    final Vertex prevVertex = vertices.get(i + j);
+                    link(weights[(i) % weights.length], startVertex, prevVertex);
+                }
             }
+
+            link(i, startVertex, targetVertex);
+        }
+
+        return vertices;
+    }
+
+    private static void link(double weight, Vertex startVertex, Vertex targetVertex) {
+        // Check if there is already an edge from startVertex to targetVertex
+        boolean edgeExists = startVertex.getAdjacencyList().stream()
+            .anyMatch(edge -> edge.getTargetVertex().equals(targetVertex));
+
+        if (!edgeExists && !startVertex.equals(targetVertex)) {
+            Edge edge = new Edge(weight, startVertex, targetVertex);
+            startVertex.addNeighbor(edge);
         }
     }
 
@@ -179,12 +221,12 @@ class DijkstraAlgorithm {
         }
     }
 
-    public List<Vertex> getShortestPathTo(Vertex targetVertex) {
-        final Deque<Vertex> path = new ArrayDeque<>();
+    public double getShortestPathDistanceTo(Vertex targetVertex) {
+        double sum = 0;
         for (Vertex vertex = targetVertex; vertex != null; vertex = vertex.getPredecessor()) {
-            path.push(vertex);
+            sum += vertex.getDistance();
         }
-        return new ArrayList<>(path);
+        return sum;
     }
 }
 

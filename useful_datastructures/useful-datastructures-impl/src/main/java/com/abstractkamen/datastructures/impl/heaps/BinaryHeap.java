@@ -1,12 +1,8 @@
 package com.abstractkamen.datastructures.impl.heaps;
 
-import com.abstractkamen.datastructures.api.heaps.Heap;
-import com.abstractkamen.datastructures.api.heaps.MergeableHeap;
+import com.abstractkamen.datastructures.api.heaps.*;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 /**
  * The elements of the binary heap are ordered according to their natural ordering,
@@ -16,26 +12,50 @@ import java.util.NoSuchElementException;
  * @param <T> The type of elements stored in the binary heap.
  */
 public class BinaryHeap<T> implements Heap<T>, MergeableHeap<T> {
+    protected static final int DEFAULT_CAPACITY = 16;
     private final Comparator<T> comparator;
-    private final List<T> items = new ArrayList<>();
+    private Object[] items;
     private int size;
 
     /**
-     * Create an {@code BinaryHeap<T>} with a custom comparator
+     * Create an {@code BinaryHeap<T>} with a custom comparator and capacity.
+     *
+     * @param comparator custom comparator
+     * @param capacity   initial capacity
+     */
+    public BinaryHeap(Comparator<T> comparator, int capacity) {
+        this.comparator = comparator;
+        this.items = new Object[capacity];
+    }
+
+    /**
+     * Create an {@code BinaryHeap<T>} with a custom comparator.
      *
      * @param comparator custom comparator
      */
     public BinaryHeap(Comparator<T> comparator) {
-        this.comparator = comparator;
+        this(comparator, DEFAULT_CAPACITY);
     }
 
     /**
      * Create an {@code BinaryHeap<T>} with natural order comparator in a type safe way.
+     *
      * @param <T> comparable type
      */
     public static <T extends Comparable<T>> BinaryHeap<T> createComparable() {
         final Comparator<T> c = Comparable::compareTo;
         return new BinaryHeap<>(c);
+    }
+
+    /**
+     * Create an {@code BinaryHeap<T>} with natural order comparator in a type safe way.
+     *
+     * @param capacity initial capacity
+     * @param <T>      comparable type
+     */
+    public static <T extends Comparable<T>> BinaryHeap<T> createComparable(int capacity) {
+        final Comparator<T> c = Comparable::compareTo;
+        return new BinaryHeap<>(c, capacity);
     }
 
     @Override
@@ -50,26 +70,33 @@ public class BinaryHeap<T> implements Heap<T>, MergeableHeap<T> {
 
     @Override
     public int push(T item) {
-        items.add(item);
-        heapifyUp(size++);
-        return size;
+        final int i = size;
+        if (items.length <= i + 1) {
+            items = Arrays.copyOf(items, i << 1);
+        }
+        items[i] = item;
+        heapifyUp(i);
+        return ++size;
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public T peek() {
-        return isEmpty() ? null : items.get(0);
+        return isEmpty() ? null : (T) items[0];
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public T pop() {
         if (isEmpty()) {
             throw new NoSuchElementException();
         } else {
-            final T result = items.get(0);
-            final T lastItem = items.remove(items.size() - 1);
+            final T result = (T) items[0];
+            final T lastItem = (T) items[size - 1];
+
             --size;
-            if (!items.isEmpty()) {
-                items.set(0, lastItem);
+            if (!isEmpty()) {
+                items[0] = lastItem;
                 heapifyDown(0);
             }
             return result;
@@ -78,7 +105,7 @@ public class BinaryHeap<T> implements Heap<T>, MergeableHeap<T> {
 
     @Override
     public String toString() {
-        return items.toString();
+        return "nope";
     }
 
     @Override
@@ -90,8 +117,10 @@ public class BinaryHeap<T> implements Heap<T>, MergeableHeap<T> {
     public BinaryHeap<T> mergeWith(Heap<T> other) {
         if (!(other instanceof BinaryHeap)) throw new ClassCastException("other must be an instance of BinaryHeap");
         final BinaryHeap<T> cast = (BinaryHeap<T>) other;
-        this.items.addAll(cast.items);
+        int prevSize = this.size;
         this.size += cast.size;
+        this.items = Arrays.copyOf(items, size);
+        System.arraycopy(cast.items, 0, items, prevSize, cast.size);
         restoreHeapOrder();
         return this;
     }
@@ -117,7 +146,11 @@ public class BinaryHeap<T> implements Heap<T>, MergeableHeap<T> {
         }
     }
 
-    private void heapifyDown(int i) {
+    protected Object[] getItems() {
+        return items;
+    }
+
+    protected void heapifyDown(int i) {
         while (true) {
             final int smallest = smallestChild(i);
             if (smallest == i) {
@@ -129,22 +162,22 @@ public class BinaryHeap<T> implements Heap<T>, MergeableHeap<T> {
     }
 
     private int smallestChild(int i) {
-        final int left = leftChild(i);
-        final int right = rightChild(i);
+        final int left = (i << 1) + 1;
+        final int right = left + 1;
         int smallest = i;
-        if (left < size && greaterThan(smallest, left)) {
+        if (left < size && greaterThanOrEqual(smallest, left, comparator, items)) {
             smallest = left;
         }
-        if (right < size && greaterThan(smallest, right)) {
+        if (right < size && greaterThanOrEqual(smallest, right, comparator, items)) {
             smallest = right;
         }
         return smallest;
     }
 
-    private void heapifyUp(int i) {
+    protected void heapifyUp(int i) {
         while (i > 0) {
-            final int parent = parent(i);
-            if (greaterThan(parent, i)) {
+            final int parent = (i - 1) >>> 1;
+            if (greaterThanOrEqual(parent, i, comparator, items)) {
                 swap(i, parent);
                 i = parent;
             } else {
@@ -153,25 +186,14 @@ public class BinaryHeap<T> implements Heap<T>, MergeableHeap<T> {
         }
     }
 
-    private int parent(int i) {
-        return (i - 1) >> 1;
-    }
-
-    private int leftChild(int i) {
-        return (i << 1) + 1;
-    }
-
-    private int rightChild(int i) {
-        return (i << 1) + 2;
-    }
-
     private void swap(int a, int b) {
-        final T tempA = items.get(a);
-        items.set(a, items.get(b));
-        items.set(b, tempA);
+        final Object tempA = items[a];
+        items[a] = items[b];
+        items[b] = tempA;
     }
 
-    private boolean greaterThan(int a, int b) {
-        return comparator.compare(items.get(a), items.get(b)) > 0;
+    @SuppressWarnings("unchecked")
+    private static <T> boolean greaterThanOrEqual(int a, int b, Comparator<T> c, Object[] items) {
+        return c.compare((T) items[a], (T) items[b]) >= 0;
     }
 }

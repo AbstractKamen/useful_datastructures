@@ -31,28 +31,20 @@ package com.abstractkamen.datastructures.api.heaps;
  */
 public interface AdjustableHeap<T> {
     /**
-     * Try to increase {@code item} if it's present in this heap moving it further away from the root. Increasing will always happen
-     * relative to other values in the heap.
+     * Try to increase {@code item} if it's present in this heap.
      *
-     * @param item to be increased
-     * @return true if item is present and successfully decreased
+     * @param item          to be increased
+     * @param increasedItem increasing item
+     * @return true if item is present and successfully increased
      */
-    boolean increaseKey(T item);
+    boolean increaseKey(T item, T increasedItem);
 
     /**
-     * Try to decrease {@code item} if it's present in this heap moving it closer to the root. Decreasing will always happen
-     * relative to other values in the heap.
+     * Try to decrease {@code item} if it's present in this heap.
      *
-     * @param item to be decreased
+     * @param item          to be decreased
+     * @param decreasedItem decreasing item
      * @return true if item is present and successfully decreased
      */
-    boolean decreaseKey(T item);
-
-    /**
-     * Check if the item is present in the heap.
-     *
-     * @param item to check
-     * @return true if item is present in this heap
-     */
-    boolean containsKey(T item);
+    boolean decreaseKey(T item, T decreasedItem);
 }

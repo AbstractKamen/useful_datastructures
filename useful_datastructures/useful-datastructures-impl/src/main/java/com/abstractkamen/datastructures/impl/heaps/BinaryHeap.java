@@ -70,13 +70,19 @@ public class BinaryHeap<T> implements Heap<T>, MergeableHeap<T> {
 
     @Override
     public int push(T item) {
+        insert(item);
+        return size;
+    }
+
+    protected int insert(T item) {
         final int i = size;
         if (items.length <= i + 1) {
             items = Arrays.copyOf(items, i << 1);
         }
         items[i] = item;
-        heapifyUp(i);
-        return ++size;
+        final int index = heapifyUp(items, comparator, i);
+        ++size;
+        return index;
     }
 
     @Override
@@ -88,16 +94,14 @@ public class BinaryHeap<T> implements Heap<T>, MergeableHeap<T> {
     @Override
     @SuppressWarnings("unchecked")
     public T pop() {
-        if (isEmpty()) {
+        if (size == 0) {
             throw new NoSuchElementException();
         } else {
             final T result = (T) items[0];
-            final T lastItem = (T) items[size - 1];
-
             --size;
-            if (!isEmpty()) {
-                items[0] = lastItem;
-                heapifyDown(0);
+            if (size > 0) {
+                items[0] = items[size];
+                heapifyDown(0, size, comparator, items);
             }
             return result;
         }
@@ -142,7 +146,7 @@ public class BinaryHeap<T> implements Heap<T>, MergeableHeap<T> {
     public void restoreHeapOrder() {
         int i = (size >>> 1) - 1;
         for (; i >= 0; i--) {
-            heapifyDown(i);
+            heapifyDown(i, size, comparator, items);
         }
     }
 
@@ -150,18 +154,19 @@ public class BinaryHeap<T> implements Heap<T>, MergeableHeap<T> {
         return items;
     }
 
-    protected void heapifyDown(int i) {
-        while (true) {
-            final int smallest = smallestChild(i);
+    protected static <T> void heapifyDown(int i, int size, Comparator<T> comparator, Object[] items) {
+        int half = size >>> 1;
+        while (i < half) {
+            final int smallest = smallestChild(i, size, comparator, items);
             if (smallest == i) {
                 return;
             }
-            swap(i, smallest);
+            swap(items, i, smallest);
             i = smallest;
         }
     }
 
-    private int smallestChild(int i) {
+    private static <T> int smallestChild(int i, int size, Comparator<T> comparator, Object[] items) {
         final int left = (i << 1) + 1;
         final int right = left + 1;
         int smallest = i;
@@ -174,19 +179,20 @@ public class BinaryHeap<T> implements Heap<T>, MergeableHeap<T> {
         return smallest;
     }
 
-    protected void heapifyUp(int i) {
+    protected static <T> int heapifyUp(Object[] items, Comparator<T> comparator, int i) {
         while (i > 0) {
             final int parent = (i - 1) >>> 1;
             if (greaterThanOrEqual(parent, i, comparator, items)) {
-                swap(i, parent);
+                swap(items, i, parent);
                 i = parent;
             } else {
-                return;
+                return i;
             }
         }
+        return i;
     }
 
-    private void swap(int a, int b) {
+    private static void swap(Object[] items, int a, int b) {
         final Object tempA = items[a];
         items[a] = items[b];
         items[b] = tempA;

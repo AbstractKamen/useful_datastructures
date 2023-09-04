@@ -2,7 +2,7 @@ package com.abstractkamen.datastructures.impl.heaps;
 
 import com.abstractkamen.datastructures.api.heaps.*;
 
-import java.util.Comparator;
+import java.util.*;
 
 /**
  * An implementation of an adjustable binary heap data structure.
@@ -54,7 +54,6 @@ public class AdjustableBinaryHeap<T> extends BinaryHeap<T> implements Heap<T>, M
         return new AdjustableBinaryHeap<>(c);
     }
 
-
     @Override
     public boolean increaseKey(T item, T increasedItem) {
         return false;
@@ -74,11 +73,11 @@ public class AdjustableBinaryHeap<T> extends BinaryHeap<T> implements Heap<T>, M
         }
         if (i > -1 && compare > 0) {
             items[i] = decreasedItem;
-            heapifyUp(i);
-            return true;
+            heapifyUp(items, comparator(), i);
         } else {
-            return push(decreasedItem) > -1;
+            push(decreasedItem);
         }
+        return true;
     }
 
     @Override

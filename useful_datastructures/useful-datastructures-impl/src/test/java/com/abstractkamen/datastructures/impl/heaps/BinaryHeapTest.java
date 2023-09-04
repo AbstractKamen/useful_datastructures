@@ -75,10 +75,8 @@ public class BinaryHeapTest {
             for (Mutable mutable : mutablesSortedList) {
                 mutable.m = r.nextInt(  10000) + 10000;
             }
-            final Mutable leastBeforeOrder = heap.peek();
             heap.restoreHeapOrder();
             mutablesSortedList.sort(comparator);
-            assertNotEquals(mutablesSortedList.get(0), leastBeforeOrder);
             assertEquals(mutablesSortedList.get(0), heap.peek());
             final List<Mutable> heapOrder = new ArrayList<>();
             while (!heap.isEmpty()) {

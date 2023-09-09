@@ -31,27 +31,27 @@ public class AdjustableBinaryHeapTest {
         }
     }
 
-//    @Test
-//    public void increaseKey_test() {
-//        final AdjustableBinaryHeap<Integer> h = AdjustableBinaryHeap.createComparable();
-//        h.push(1);
-//        h.push(4);
-//        h.push(3);
-//        h.push(7);
-//        h.push(3);
-//        h.push(123);
-//        h.push(13);
-//        h.push(17);
-//        h.push(1);
-//        h.push(Integer.MIN_VALUE);
-//        assertTrue(h.increaseKey(Integer.MIN_VALUE, 5));
-//        int prev = Integer.MIN_VALUE;
-//        while (!h.isEmpty()) {
-//            final int min = h.pop();
-//            assertTrue(min >= prev);
-//            prev = min;
-//        }
-//    }
+    @Test
+    public void increaseKey_test() {
+        final AdjustableBinaryHeap<Integer> h = AdjustableBinaryHeap.createComparable();
+        h.push(1);
+        h.push(4);
+        h.push(3);
+        h.push(7);
+        h.push(3);
+        h.push(123);
+        h.push(13);
+        h.push(17);
+        h.push(1);
+        h.push(Integer.MIN_VALUE);
+        assertTrue(h.increaseKey(Integer.MIN_VALUE, 5));
+        int prev = Integer.MIN_VALUE;
+        while (!h.isEmpty()) {
+            final int min = h.pop();
+            assertTrue(min >= prev);
+            prev = min;
+        }
+    }
 
     @Test
     public void push_pop_size_randomTest() {

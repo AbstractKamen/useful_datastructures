@@ -70,19 +70,14 @@ public class BinaryHeap<T> implements Heap<T>, MergeableHeap<T> {
 
     @Override
     public int push(T item) {
-        insert(item);
-        return size;
-    }
-
-    protected int insert(T item) {
         final int i = size;
         if (items.length <= i + 1) {
             items = Arrays.copyOf(items, i << 1);
         }
         items[i] = item;
-        final int index = heapifyUp(items, comparator, i);
+        heapifyUp(items, comparator, i);
         ++size;
-        return index;
+        return size;
     }
 
     @Override
@@ -101,7 +96,7 @@ public class BinaryHeap<T> implements Heap<T>, MergeableHeap<T> {
             --size;
             if (size > 0) {
                 items[0] = items[size];
-                heapifyDown(0, size, comparator, items);
+                heapifyDown(items, comparator, 0, size);
             }
             return result;
         }
@@ -109,7 +104,7 @@ public class BinaryHeap<T> implements Heap<T>, MergeableHeap<T> {
 
     @Override
     public String toString() {
-        return "nope";
+        return "not in order" + Arrays.toString(items);
     }
 
     @Override
@@ -146,7 +141,7 @@ public class BinaryHeap<T> implements Heap<T>, MergeableHeap<T> {
     public void restoreHeapOrder() {
         int i = (size >>> 1) - 1;
         for (; i >= 0; i--) {
-            heapifyDown(i, size, comparator, items);
+            heapifyDown(items, comparator, i, size);
         }
     }
 
@@ -154,7 +149,7 @@ public class BinaryHeap<T> implements Heap<T>, MergeableHeap<T> {
         return items;
     }
 
-    protected static <T> void heapifyDown(int i, int size, Comparator<T> comparator, Object[] items) {
+    protected static <T> void heapifyDown(Object[] items, Comparator<T> comparator, int i, int size) {
         int half = size >>> 1;
         while (i < half) {
             final int smallest = smallestChild(i, size, comparator, items);
@@ -179,17 +174,16 @@ public class BinaryHeap<T> implements Heap<T>, MergeableHeap<T> {
         return smallest;
     }
 
-    protected static <T> int heapifyUp(Object[] items, Comparator<T> comparator, int i) {
+    protected static <T> void heapifyUp(Object[] items, Comparator<T> comparator, int i) {
         while (i > 0) {
             final int parent = (i - 1) >>> 1;
             if (greaterThanOrEqual(parent, i, comparator, items)) {
                 swap(items, i, parent);
                 i = parent;
             } else {
-                return i;
+                return;
             }
         }
-        return i;
     }
 
     private static void swap(Object[] items, int a, int b) {

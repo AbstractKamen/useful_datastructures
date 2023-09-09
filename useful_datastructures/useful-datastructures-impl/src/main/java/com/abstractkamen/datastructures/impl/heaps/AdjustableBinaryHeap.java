@@ -2,7 +2,7 @@ package com.abstractkamen.datastructures.impl.heaps;
 
 import com.abstractkamen.datastructures.api.heaps.*;
 
-import java.util.*;
+import java.util.Comparator;
 
 /**
  * An implementation of an adjustable binary heap data structure.
@@ -56,7 +56,18 @@ public class AdjustableBinaryHeap<T> extends BinaryHeap<T> implements Heap<T>, M
 
     @Override
     public boolean increaseKey(T item, T increasedItem) {
-        return false;
+        final int compare = comparator().compare(item, increasedItem);
+        if (compare > 0) return false;
+        final Object[] items = getItems();
+        int i = indexOf(items, size(), item);
+        if (i > -1) {
+            if (compare == 0) return false;
+            items[i] = increasedItem;
+            heapifyDown(items, comparator(), i, size());
+        } else {
+            push(increasedItem);
+        }
+        return true;
     }
 
     @Override
@@ -64,14 +75,9 @@ public class AdjustableBinaryHeap<T> extends BinaryHeap<T> implements Heap<T>, M
         final int compare = comparator().compare(item, decreasedItem);
         if (compare < 0) return false;
         final Object[] items = getItems();
-        int i = -1;
-        for (int j = 0; j < size(); j++) {
-            if (item == items[j]) {
-                i = j;
-                break;
-            }
-        }
-        if (i > -1 && compare > 0) {
+        int i = indexOf(items, size(), item);
+        if (i > -1) {
+            if (compare == 0) return false;
             items[i] = decreasedItem;
             heapifyUp(items, comparator(), i);
         } else {
@@ -83,5 +89,16 @@ public class AdjustableBinaryHeap<T> extends BinaryHeap<T> implements Heap<T>, M
     @Override
     public AdjustableBinaryHeap<T> mergeWith(Heap<T> other) {
         return (AdjustableBinaryHeap<T>) super.mergeWith(other);
+    }
+
+    private static int indexOf(Object[] items, int size, Object item) {
+        int i = -1;
+        for (int j = 0; j < size; j++) {
+            if (item == items[j]) {
+                i = j;
+                break;
+            }
+        }
+        return i;
     }
 }

@@ -3,14 +3,10 @@ package com.abstractkamen.datastructures.impl.trees.search;
 import com.abstractkamen.datastructures.api.trees.search.BinarySearchTree;
 
 import java.util.*;
-import java.util.function.Predicate;
-import java.util.function.UnaryOperator;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
+import java.util.function.*;
+import java.util.stream.*;
 
-import static java.util.Spliterator.IMMUTABLE;
-import static java.util.Spliterator.SORTED;
+import static java.util.Spliterator.*;
 
 /**
  * An AVL implementation of the BinarySearchTree interface. Currently, does not support concurrent modification.
@@ -28,22 +24,47 @@ public class AvlTree<T> implements BinarySearchTree<T> {
     private final Comparator<T> comparator;
     private Node<T> root;
     private int size;
+    private final boolean allowDuplicates;
 
     /**
-     * Create an {@code AvlTree<T>} with a custom comparator
+     * Create an {@code AvlTree<T>} with a custom comparator and allowed duplicate values.
+     *
      * @param comparator custom comparator
      */
     public AvlTree(Comparator<T> comparator) {
+        this(comparator, true);
+    }
+
+    /**
+     * Create an {@code AvlTree<T>} with a custom comparator and flag for duplicate values.
+     *
+     * @param comparator      custom comparator
+     * @param allowDuplicates flag for duplicate values
+     */
+    public AvlTree(Comparator<T> comparator, boolean allowDuplicates) {
         this.comparator = comparator;
+        this.allowDuplicates = allowDuplicates;
     }
 
     /**
      * Create an {@code AvlTree<T>} with natural order comparator in a type safe way.
+     *
      * @param <T> comparable type
      */
     public static <T extends Comparable<T>> AvlTree<T> createComparable() {
         final Comparator<T> c = Comparable::compareTo;
         return new AvlTree<>(c);
+    }
+
+    /**
+     * Create an {@code AvlTree<T>} with natural order comparator in a type safe way and flag for duplicate values.
+     *
+     * @param <T>             comparable type
+     * @param allowDuplicates flag for duplicate values
+     */
+    public static <T extends Comparable<T>> AvlTree<T> createComparable(boolean allowDuplicates) {
+        final Comparator<T> c = Comparable::compareTo;
+        return new AvlTree<>(c, allowDuplicates);
     }
 
     @Override
@@ -59,7 +80,6 @@ public class AvlTree<T> implements BinarySearchTree<T> {
     @Override
     public void add(T item) {
         this.root = insertNode(this.root, item);
-        size++;
     }
 
     @Override
@@ -342,11 +362,15 @@ public class AvlTree<T> implements BinarySearchTree<T> {
 
     private Node<T> insertNode(Node<T> current, T item) {
         if (current == null) {
+            size++;
             return new Node<>(item);
         }
         // item is equal increment current
         if (eq(item, current.item)) {
-            current.increment();
+            if (this.allowDuplicates) {
+                current.increment();
+                size++;
+            }
             return current;
             // item is lesser go left
         } else if (lsThan(item, current.item)) {

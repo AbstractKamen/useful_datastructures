@@ -1,14 +1,9 @@
 package com.abstractkamen.datastructures.impl.trees.search;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
+import java.util.*;
+import java.util.function.*;
 
 import static org.junit.Assert.*;
 
@@ -18,6 +13,25 @@ public class AvlTreeTest {
     @Before
     public void init() {
         tree = AvlTree.createComparable();
+    }
+
+    @Test
+    public void testTree_withDisallowedDuplicates() {
+        tree = AvlTree.createComparable(false);
+        tree.add(10);
+        tree.add(5);
+        tree.add(15);
+        tree.add(3);
+
+        tree.add(7);
+        tree.add(7);
+        tree.add(7);
+        tree.add(7);
+
+        tree.add(13);
+        tree.add(17);
+        assertEquals(7, tree.size());
+        assertEquals(1, tree.containsCount(7));
     }
 
     @Test

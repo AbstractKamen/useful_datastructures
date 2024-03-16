@@ -39,27 +39,27 @@
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>          }
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>      }
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>  
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_comment">//    @Test</em>
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_comment">//    public void increaseKey_test() {</em>
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_comment">//        final AdjustableBinaryHeap&lt;Integer&gt; h = AdjustableBinaryHeap.createComparable();</em>
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_comment">//        h.push(1);</em>
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_comment">//        h.push(4);</em>
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_comment">//        h.push(3);</em>
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_comment">//        h.push(7);</em>
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_comment">//        h.push(3);</em>
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_comment">//        h.push(123);</em>
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <em class="jxr_comment">//        h.push(13);</em>
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_comment">//        h.push(17);</em>
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <em class="jxr_comment">//        h.push(1);</em>
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_comment">//        h.push(Integer.MIN_VALUE);</em>
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <em class="jxr_comment">//        assertTrue(h.increaseKey(Integer.MIN_VALUE, 5));</em>
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <em class="jxr_comment">//        int prev = Integer.MIN_VALUE;</em>
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <em class="jxr_comment">//        while (!h.isEmpty()) {</em>
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <em class="jxr_comment">//            final int min = h.pop();</em>
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>  <em class="jxr_comment">//            assertTrue(min &gt;= prev);</em>
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <em class="jxr_comment">//            prev = min;</em>
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_comment">//        }</em>
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_comment">//    }</em>
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>      @Test
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> increaseKey_test() {
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>          <strong class="jxr_keyword">final</strong> AdjustableBinaryHeap&lt;Integer&gt; h = AdjustableBinaryHeap.createComparable();
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>          h.push(1);
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>          h.push(4);
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>          h.push(3);
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>          h.push(7);
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>          h.push(3);
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>          h.push(123);
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>          h.push(13);
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>          h.push(17);
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>          h.push(1);
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>          h.push(Integer.MIN_VALUE);
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>          assertTrue(h.increaseKey(Integer.MIN_VALUE, 5));
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>          <strong class="jxr_keyword">int</strong> prev = Integer.MIN_VALUE;
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>          <strong class="jxr_keyword">while</strong> (!h.isEmpty()) {
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>              <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> min = h.pop();
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>              assertTrue(min &gt;= prev);
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>              prev = min;
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>          }
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>      }
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>  
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>      @Test
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> push_pop_size_randomTest() {
@@ -337,6 +337,6 @@
 <a class="jxr_linenumber" name="L329" href="#L329">329</a> }
 </pre>
 <hr/>
-<div id="footer">Copyright &#169; 2023. All rights reserved.</div>
+<div id="footer">Copyright &#169; 2023&#x2013;2024. All rights reserved.</div>
 </body>
 </html>

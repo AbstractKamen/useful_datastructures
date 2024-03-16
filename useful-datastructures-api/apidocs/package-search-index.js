@@ -1,1 +1,1 @@
-packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"com.abstractkamen.datastructures.api.heaps"},{"l":"com.abstractkamen.datastructures.api.stacks"},{"l":"com.abstractkamen.datastructures.api.trees.search"}];updateSearchResults();
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"com.abstractkamen.datastructures.api.heaps"},{"l":"com.abstractkamen.datastructures.api.queues"},{"l":"com.abstractkamen.datastructures.api.stacks"},{"l":"com.abstractkamen.datastructures.api.trees.search"}];updateSearchResults();

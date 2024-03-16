@@ -1,6 +1,8 @@
 com.abstractkamen.datastructures.api.heaps
+com.abstractkamen.datastructures.api.queues
 com.abstractkamen.datastructures.api.stacks
 com.abstractkamen.datastructures.api.trees.search
 com.abstractkamen.datastructures.impl.heaps
+com.abstractkamen.datastructures.impl.queues
 com.abstractkamen.datastructures.impl.stacks
 com.abstractkamen.datastructures.impl.trees.search

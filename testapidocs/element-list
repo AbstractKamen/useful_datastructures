@@ -1,3 +1,4 @@
 com.abstractkamen.datastructures.impl.heaps
+com.abstractkamen.datastructures.impl.queues
 com.abstractkamen.datastructures.impl.trees.search
 com.abstractkamen.datastructures.impl.trees.search.demos

@@ -63,7 +63,7 @@ public class OverwritingRingBuffer<T> implements RingBuffer<T> {
     public boolean enqueue(T item) {
         items[(start + count) & mask] = item;
         if (count == capacity()) {
-            start = (start + 1) % capacity();
+            start = (start + 1) & mask;
         } else {
             count++;
         }

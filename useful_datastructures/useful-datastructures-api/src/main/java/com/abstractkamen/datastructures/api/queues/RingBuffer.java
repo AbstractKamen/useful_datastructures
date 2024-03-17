@@ -1,5 +1,6 @@
 package com.abstractkamen.datastructures.api.queues;
 
+import java.util.Iterator;
 import java.util.stream.Stream;
 
 /**
@@ -8,6 +9,7 @@ import java.util.stream.Stream;
  * @param <T> the type of elements stored in the buffer.
  */
 public interface RingBuffer<T> extends Iterable<T> {
+
     /**
      * True if buffer is empty.
      *
@@ -50,4 +52,15 @@ public interface RingBuffer<T> extends Iterable<T> {
      * @return a sequential stream of items in the buffer.
      */
     Stream<T> stream();
+
+    /**
+     * Returns an iterator over the items in the buffer.
+     * <p>
+     * The {@link Iterator#remove()} method of the returned iterator is not supported and will throw an
+     * {@link UnsupportedOperationException}.
+     *
+     * @return an iterator over the items in the buffer.
+     */
+    @Override
+    Iterator<T> iterator();
 }

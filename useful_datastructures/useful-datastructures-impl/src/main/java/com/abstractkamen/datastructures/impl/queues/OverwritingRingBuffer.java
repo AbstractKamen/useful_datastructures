@@ -19,6 +19,7 @@ public class OverwritingRingBuffer<T> implements RingBuffer<T> {
     private final Object[] items;
     private int start;
     private int count;
+    private final int mask;
 
     /**
      * Constructs a new {@code OverwritingRingBuffer} with the specified initial capacity.
@@ -30,7 +31,11 @@ public class OverwritingRingBuffer<T> implements RingBuffer<T> {
         if (initialCapacity < 1) {
             throw new IllegalArgumentException("Initial capacity cannot be lesser than one");
         }
+        if (Integer.bitCount(initialCapacity) != 1) {
+            throw new IllegalArgumentException("Initial capacity must be a power of two");
+        }
         this.items = new Object[initialCapacity];
+        this.mask = items.length - 1;
     }
 
     @Override
@@ -56,9 +61,9 @@ public class OverwritingRingBuffer<T> implements RingBuffer<T> {
      */
     @Override
     public boolean enqueue(T item) {
-        items[(start + count) % capacity()] = item;
+        items[(start + count) & mask] = item;
         if (count == capacity()) {
-            start++;
+            start = (start + 1) % capacity();
         } else {
             count++;
         }
@@ -77,7 +82,7 @@ public class OverwritingRingBuffer<T> implements RingBuffer<T> {
             throw new NoSuchElementException("Buffer is empty");
         }
         final T res = (T) items[start];
-        start = (start + 1) % capacity();
+        start = (start + 1) & mask;
         count--;
         return res;
     }
@@ -102,11 +107,6 @@ public class OverwritingRingBuffer<T> implements RingBuffer<T> {
         return Spliterators.spliterator(iterator(), size(), Spliterator.ORDERED);
     }
 
-    /**
-     * Returns an iterator over the items in the buffer.
-     *
-     * @return an iterator over the items in the buffer.
-     */
     @Override
     @SuppressWarnings("unchecked")
     public Iterator<T> iterator() {
@@ -120,13 +120,13 @@ public class OverwritingRingBuffer<T> implements RingBuffer<T> {
 
             @Override
             public void remove() {
-                throw new UnsupportedOperationException("Use dequeue to remove items from the queue");
+                throw new UnsupportedOperationException("remove is not supported");
             }
 
             @Override
             public T next() {
                 if (hasNext()) {
-                    final T next = (T) items[(i + start) % capacity()];
+                    final T next = (T) items[(i + start) & mask];
                     i++;
                     return next;
                 }

@@ -38,6 +38,36 @@ public class OverwritingRingBufferTest {
         }
     }
 
+    @Test
+    public void constructor_shouldNotThrow_whenCapacity_isPowerOf2() {
+        int powerOfTwo = 1;
+        for (int i = 0; i < 20; i++) {
+            System.out.println(powerOfTwo);
+            new OverwritingRingBuffer<>(powerOfTwo);
+            powerOfTwo *= 2;
+        }
+    }
+
+    @Test
+    public void constructor_shouldThrow_whenCapacity_notPowerOf2() {
+        class ThrowOnConstructAndAssert {
+            void throwsWithCapacity(int cap) {
+                try {
+                    new OverwritingRingBuffer<>(cap);
+                    throw new AssertionError("expected exception");
+                } catch (IllegalArgumentException e) {
+                    // expected exception is thrown
+                }
+            }
+        }
+        final ThrowOnConstructAndAssert anAssert = new ThrowOnConstructAndAssert();
+        for (int i = 1; i < 100; i++) {
+            if (Integer.bitCount(i) != 1) {
+                anAssert.throwsWithCapacity(i);
+            }
+        }
+    }
+
     @Test(expected = NoSuchElementException.class)
     public void dequeue_shouldThrowExpected_whenEmpty() {
         // arrange

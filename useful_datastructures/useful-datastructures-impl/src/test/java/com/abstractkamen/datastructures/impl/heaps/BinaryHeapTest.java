@@ -2,10 +2,16 @@ package com.abstractkamen.datastructures.impl.heaps;
 
 import org.junit.Test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Random;
 import java.util.stream.IntStream;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 
 public class BinaryHeapTest {
 
@@ -29,6 +35,40 @@ public class BinaryHeapTest {
             expected.sort(Integer::compare);
             assertEquals(expected, actual);
         }
+    }
+
+    @Test
+    public void test_heapCapacity() {
+        final int N = 10;
+        for (int i_capacity = 1; i_capacity < N; i_capacity++) {
+            // arrange
+            final BinaryHeap<Integer> binaryHeap = new BinaryHeap<>(Integer::compareTo, i_capacity);
+            // act
+            for (int j = 0; j < i_capacity; j++) {
+                binaryHeap.push(i_capacity);
+            }
+            // assert
+            final List<Integer> expected = new ArrayList<>(binaryHeap.size());
+            final List<Integer> actual = new ArrayList<>(binaryHeap.size());
+            while (!binaryHeap.isEmpty()) {
+                final int popped = binaryHeap.pop();
+                actual.add(popped);
+                expected.add(popped);
+            }
+            expected.sort(Integer::compare);
+            assertEquals(expected, actual);
+            assertEquals(expected.size(), i_capacity);
+        }
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void test_heapCapacity_shouldThrow_whenZero() {
+        new BinaryHeap<>((a, b) -> 0, 0);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void test_heapCapacity_shouldThrow_whenBelowZero() {
+        new BinaryHeap<>((a, b) -> 0, -1);
     }
 
     // @Test
@@ -73,7 +113,7 @@ public class BinaryHeapTest {
             mutablesSortedList.sort(comparator);
             assertEquals(mutablesSortedList.get(0), heap.peek());
             for (Mutable mutable : mutablesSortedList) {
-                mutable.m = r.nextInt(  10000) + 10000;
+                mutable.m = r.nextInt(10000) + 10000;
             }
             heap.restoreHeapOrder();
             mutablesSortedList.sort(comparator);

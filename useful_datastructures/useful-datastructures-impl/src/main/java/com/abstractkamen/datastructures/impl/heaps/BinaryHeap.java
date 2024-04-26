@@ -24,6 +24,9 @@ public class BinaryHeap<T> implements Heap<T>, MergeableHeap<T> {
      * @param capacity   initial capacity
      */
     public BinaryHeap(Comparator<T> comparator, int capacity) {
+        if (capacity < 1) {
+            throw new IllegalArgumentException("capacity cannot be below 1");
+        }
         this.comparator = comparator;
         this.items = new Object[capacity];
     }
@@ -72,7 +75,7 @@ public class BinaryHeap<T> implements Heap<T>, MergeableHeap<T> {
     public int push(T item) {
         final int i = size;
         if (items.length <= i + 1) {
-            items = Arrays.copyOf(items, i << 1);
+            items = Arrays.copyOf(items, items.length << 1);
         }
         items[i] = item;
         heapifyUp(items, comparator, i);

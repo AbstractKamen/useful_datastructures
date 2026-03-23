@@ -87,11 +87,71 @@ public class GenericUkkonenSuffixTreeTest {
     }
 
     @Test
-    public void shakespeare_lots_duplicates_with_all() {
-        var input = Stream.of("Called, Calls, Shall, Shall, Shall, Shall, Shall, Shall, Shall, Shall, Shall, Shall, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all-eating, all-oblivious, all-tyrant, allayed, allege, allow, allow, call, call, call, call, call, call, call, call, call, call, called, calls, calls, calls, calls, effectually, fall, fall, fall, falls, hallowed, miscalled, parallels, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shallowest, small, small, swallowed, tall, tallies, thrall, thralled, valley-fountain, walls, walls".split(", ")).map(s-> new UkkonenSuffixTreeInput<>(s,s)).toList();
+    public void shakespeare_overlaps_with_all_no_duplicates() {
+        var input = Stream.of("Called, Calls, Shall, all, all-eating, all-oblivious, all-tyrant, allayed, allege, allow, call, called, calls, effectually, fall, falls, hallowed, miscalled, parallels, shall, shallowest, small, swallowed, tall, tallies, thrall, thralled, valley-fountain, walls".split(", "))
+                .map(s -> new UkkonenSuffixTreeInput<>(s, s))
+                .toList();
+        var tree = new GenericUkkonenSuffixTree<>(input);
+       System.out.println(tree.prettyTreeString());
+        assertEquals(input.size(), tree.findAllOccurrences("all").size());
+    }
+
+    @Test
+    public void cacao() {
+        var input = Stream.of("cacao")
+                .map(s -> new UkkonenSuffixTreeInput<>(s, s))
+                .toList();
         var tree = new GenericUkkonenSuffixTree<>(input);
         System.out.println(tree.prettyTreeString());
+        assertEquals(input.size(), tree.findAllOccurrences("c").size());
+    }
+
+
+    @Test
+    public void shakespeare_overlaps_with_all_many_duplicates() {
+        var input = Stream.of("Called, Calls, Shall, Shall, Shall, Shall, Shall, Shall, Shall, Shall, Shall, Shall, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all, all-eating, all-oblivious, all-tyrant, allayed, allege, allow, allow, call, call, call, call, call, call, call, call, call, call, called, calls, calls, calls, calls, effectually, fall, fall, fall, falls, hallowed, miscalled, parallels, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shall, shallowest, small, small, swallowed, tall, tallies, thrall, thralled, valley-fountain, walls, walls".split(", "))
+                .map(s -> new UkkonenSuffixTreeInput<>(s, s))
+                .toList();
+        var tree = new GenericUkkonenSuffixTree<>(input);
+//        System.out.println(tree.prettyTreeString());
         assertEquals(input.size(), tree.findAllOccurrences("all").size());
+    }
+
+    @Test
+    public void overlapping_suffix_and_prefixes() {
+        var input = Stream.of("a, cdab, dab, do, doa".split(", "))
+                .map(s -> new UkkonenSuffixTreeInput<>(s, s))
+                .toList();
+        var tree = new GenericUkkonenSuffixTree<>(input);
+        System.out.println(tree.prettyTreeString());
+
+        assertEquals(4, tree.findAllOccurrences("a").size());
+        assertEquals(4, tree.findAllOccurrences("d").size());
+        assertEquals(2, tree.findAllOccurrences("o").size());
+        assertEquals(2, tree.findAllOccurrences("do").size());
+        assertEquals(2, tree.findAllOccurrences("ab").size());
+        assertEquals(2, tree.findAllOccurrences("dab").size());
+        assertEquals(1, tree.findAllOccurrences("doa").size());
+        assertEquals(1, tree.findAllOccurrences("cdab").size());
+    }
+
+    @Test
+    public void overlapping_suffix_and_prefixes_many_duplicates() {
+        var input = Stream.of("a, a, a, a, cdab, cdab, dab, dab, do, doa, dodab, d, d, d".split(", "))
+                .map(s -> new UkkonenSuffixTreeInput<>(s, s))
+                .toList();
+        var tree = new GenericUkkonenSuffixTree<>(input);
+        System.out.println(tree);
+        System.out.println(tree.prettyTreeString());
+        assertEquals(10, tree.findAllOccurrences("a").size());
+        assertEquals(10, tree.findAllOccurrences("d").size());
+        assertEquals(3, tree.findAllOccurrences("o").size());
+        assertEquals(3, tree.findAllOccurrences("do").size());
+        assertEquals(5, tree.findAllOccurrences("ab").size());
+        assertEquals(5, tree.findAllOccurrences("dab").size());
+        assertEquals(1, tree.findAllOccurrences("doa").size());
+        assertEquals(2, tree.findAllOccurrences("cdab").size());
+        assertEquals(1, tree.findAllOccurrences("dodab").size());
     }
 
     private boolean slowSearch(String in, String search) {
@@ -132,22 +192,6 @@ public class GenericUkkonenSuffixTreeTest {
         assertEquals(2, matches.size());
         assertTrue(matches.contains("PLAYER_1"));
         assertTrue(matches.contains("PLAYER_2"));
-    }
-
-    @Test
-    public void testOverlappingSubstrings() {
-        var input = List.of(
-                new UkkonenSuffixTreeInput<>("abab", "A")
-        );
-        var tree = new GenericUkkonenSuffixTree<>(input);
-
-        // "ab" appears twice but returns unique value
-        var abMatches = tree.findAllOccurrences("ab");
-        assertEquals(1, abMatches.size());
-        assertEquals("A", abMatches.iterator().next());
-
-        assertTrue(tree.contains("aba"));
-        assertTrue(tree.contains("bab"));
     }
 
     @Test

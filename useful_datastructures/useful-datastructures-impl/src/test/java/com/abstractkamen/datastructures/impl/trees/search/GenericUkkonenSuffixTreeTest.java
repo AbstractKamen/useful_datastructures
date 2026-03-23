@@ -113,7 +113,7 @@ public class GenericUkkonenSuffixTreeTest {
                 .map(s -> new UkkonenSuffixTreeInput<>(s, s))
                 .toList();
         var tree = new GenericUkkonenSuffixTree<>(input);
-//        System.out.println(tree.prettyTreeString());
+        System.out.println(tree.prettyTreeString());
         assertEquals(input.size(), tree.findAllOccurrences("all").size());
     }
 

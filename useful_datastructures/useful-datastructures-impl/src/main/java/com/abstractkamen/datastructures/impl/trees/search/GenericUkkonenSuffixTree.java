@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * The Generic suffix tree implementation using Ukkonen's Algorithm
- * </p> Useful links:
+ * <p> Useful links:
  * <ul>
  *     <li><a href="https://www.cs.helsinki.fi/u/ukkonen/SuffixT1withFigs.pdf">Esko Ukkonen On–line construction of suffix trees</a></li>
  *     <li><a href="https://github.com/abahgat/suffixtree">Good Implementation of generic suffix tree</a></li>

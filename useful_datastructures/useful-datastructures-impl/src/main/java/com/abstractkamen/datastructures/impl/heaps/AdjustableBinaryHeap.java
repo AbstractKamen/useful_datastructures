@@ -37,6 +37,7 @@ public class AdjustableBinaryHeap<T> extends BinaryHeap<T> implements Heap<T>, M
      * Create an {@code AdjustableBinaryHeap<T>} with natural order comparator in a type safe way.
      *
      * @param <T> comparable type
+     * @return a comparable heap with default capacity
      */
     public static <T extends Comparable<T>> AdjustableBinaryHeap<T> createComparable() {
         final Comparator<T> c = Comparable::compareTo;
@@ -48,6 +49,7 @@ public class AdjustableBinaryHeap<T> extends BinaryHeap<T> implements Heap<T>, M
      *
      * @param capacity initial capacity
      * @param <T>      comparable type
+     * @return a comparable heap with given capacity
      */
     public static <T extends Comparable<T>> AdjustableBinaryHeap<T> createComparable(int capacity) {
         final Comparator<T> c = Comparable::compareTo;

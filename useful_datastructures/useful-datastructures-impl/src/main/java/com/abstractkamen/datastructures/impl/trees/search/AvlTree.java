@@ -50,6 +50,7 @@ public class AvlTree<T> implements BinarySearchTree<T> {
      * Create an {@code AvlTree<T>} with natural order comparator in a type safe way.
      *
      * @param <T> comparable type
+     * @return a comparable tree
      */
     public static <T extends Comparable<T>> AvlTree<T> createComparable() {
         final Comparator<T> c = Comparable::compareTo;
@@ -61,6 +62,7 @@ public class AvlTree<T> implements BinarySearchTree<T> {
      *
      * @param <T>             comparable type
      * @param allowDuplicates flag for duplicate values
+     * @return a comparable tree with duplicates
      */
     public static <T extends Comparable<T>> AvlTree<T> createComparable(boolean allowDuplicates) {
         final Comparator<T> c = Comparable::compareTo;

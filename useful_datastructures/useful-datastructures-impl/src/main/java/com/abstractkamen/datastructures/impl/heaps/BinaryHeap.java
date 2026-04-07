@@ -12,6 +12,9 @@ import java.util.*;
  * @param <T> The type of elements stored in the binary heap.
  */
 public class BinaryHeap<T> implements Heap<T>, MergeableHeap<T> {
+    /**
+     * The default heap capacity
+     */
     protected static final int DEFAULT_CAPACITY = 16;
     private final Comparator<T> comparator;
     private Object[] items;
@@ -33,7 +36,6 @@ public class BinaryHeap<T> implements Heap<T>, MergeableHeap<T> {
 
     /**
      * Create an {@code BinaryHeap<T>} with a custom comparator.
-     *
      * @param comparator custom comparator
      */
     public BinaryHeap(Comparator<T> comparator) {
@@ -44,6 +46,7 @@ public class BinaryHeap<T> implements Heap<T>, MergeableHeap<T> {
      * Create an {@code BinaryHeap<T>} with natural order comparator in a type safe way.
      *
      * @param <T> comparable type
+     * @return a comparable heap with default capacity
      */
     public static <T extends Comparable<T>> BinaryHeap<T> createComparable() {
         final Comparator<T> c = Comparable::compareTo;
@@ -52,9 +55,9 @@ public class BinaryHeap<T> implements Heap<T>, MergeableHeap<T> {
 
     /**
      * Create an {@code BinaryHeap<T>} with natural order comparator in a type safe way.
-     *
      * @param capacity initial capacity
      * @param <T>      comparable type
+     * @return a comparable heap with given capacity
      */
     public static <T extends Comparable<T>> BinaryHeap<T> createComparable(int capacity) {
         final Comparator<T> c = Comparable::compareTo;
@@ -152,6 +155,14 @@ public class BinaryHeap<T> implements Heap<T>, MergeableHeap<T> {
         return items;
     }
 
+    /**
+     * Heapify down implementation
+     * @param items array
+     * @param comparator comparator
+     * @param i current index
+     * @param size size of heap
+     * @param <T> value type
+     */
     protected static <T> void heapifyDown(Object[] items, Comparator<T> comparator, int i, int size) {
         int half = size >>> 1;
         while (i < half) {
@@ -177,6 +188,13 @@ public class BinaryHeap<T> implements Heap<T>, MergeableHeap<T> {
         return smallest;
     }
 
+    /**
+     * Heapify up implementation
+     * @param items array
+     * @param comparator comparator
+     * @param i current index
+     * @param <T> value type
+     */
     protected static <T> void heapifyUp(Object[] items, Comparator<T> comparator, int i) {
         while (i > 0) {
             final int parent = (i - 1) >>> 1;

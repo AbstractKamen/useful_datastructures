@@ -1,0 +1,54 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>SuffixTreeExample xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../../testapidocs/com/abstractkamen/datastructures/impl/trees/search/demos/SuffixTreeExample.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="#L1">1</a>   <strong class="jxr_keyword">package</strong> com.abstractkamen.datastructures.impl.trees.search.demos;
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <strong class="jxr_keyword">import</strong> com.abstractkamen.datastructures.api.trees.search.SuffixTree;
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <strong class="jxr_keyword">import</strong> com.abstractkamen.datastructures.impl.trees.search.GenericUkkonenSuffixTree;
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">import</strong> com.abstractkamen.datastructures.impl.trees.search.UkkonenSuffixTreeInput;
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="SuffixTreeExample" href="../../../../../../../com/abstractkamen/datastructures/impl/trees/search/demos/SuffixTreeExample.html#SuffixTreeExample">SuffixTreeExample</a> {
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> main(String[] args) {
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">var</strong> input = List.of(
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>                  <strong class="jxr_keyword">new</strong> UkkonenSuffixTreeInput&lt;&gt;(<span class="jxr_string">"banana"</span>, <span class="jxr_string">"A"</span>),
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>                  <strong class="jxr_keyword">new</strong> UkkonenSuffixTreeInput&lt;&gt;(<span class="jxr_string">"bananabanana"</span>, <span class="jxr_string">"B"</span>),
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>                  <strong class="jxr_keyword">new</strong> UkkonenSuffixTreeInput&lt;&gt;(<span class="jxr_string">"bananabananabanana"</span>, <span class="jxr_string">"C"</span>)
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>          );
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>          <strong class="jxr_keyword">final</strong> SuffixTree&lt;String&gt; tree = <strong class="jxr_keyword">new</strong> GenericUkkonenSuffixTree&lt;&gt;(input);
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>          System.out.println(<span class="jxr_string">"Should contain `banana`: "</span> + tree.contains(<span class="jxr_string">"banana"</span>));
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>          System.out.println(<span class="jxr_string">"Should contain `bananabanana`: "</span> + tree.contains(<span class="jxr_string">"bananabanana"</span>));
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>          System.out.println(<span class="jxr_string">"Should contain `bananabananabanana`: "</span> + tree.contains(<span class="jxr_string">"bananabananabanana"</span>));
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>          System.out.println(<span class="jxr_string">"Should return 3 strings for `b`: "</span> + tree.findAllOccurrences(<span class="jxr_string">"b"</span>).size());
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>          System.out.println(<span class="jxr_string">"Should return 3 strings for `ba`: "</span> + tree.findAllOccurrences(<span class="jxr_string">"ba"</span>).size());
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>          System.out.println(<span class="jxr_string">"Should return 3 strings for `ban`: "</span> + tree.findAllOccurrences(<span class="jxr_string">"ban"</span>).size());
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>          System.out.println(<span class="jxr_string">"Should return 3 strings for `bana`: "</span> + tree.findAllOccurrences(<span class="jxr_string">"bana"</span>).size());
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>          System.out.println(<span class="jxr_string">"Should return 3 strings for `banan`: "</span> + tree.findAllOccurrences(<span class="jxr_string">"banan"</span>).size());
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>          System.out.println(<span class="jxr_string">"Should return 3 strings for `banana`: "</span> + tree.findAllOccurrences(<span class="jxr_string">"banana"</span>).size());
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>          System.out.println(<span class="jxr_string">"Should return 2 strings for `bananab`: "</span> + tree.findAllOccurrences(<span class="jxr_string">"bananab"</span>).size());
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>          System.out.println(<span class="jxr_string">"Should return 2 strings for `bananaba`: "</span> + tree.findAllOccurrences(<span class="jxr_string">"bananaba"</span>).size());
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>          System.out.println(<span class="jxr_string">"Should return 2 strings for `bananaban`: "</span> + tree.findAllOccurrences(<span class="jxr_string">"bananaban"</span>).size());
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>          System.out.println(<span class="jxr_string">"Should return 2 strings for `bananabana`: "</span> + tree.findAllOccurrences(<span class="jxr_string">"bananabana"</span>).size());
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>          System.out.println(<span class="jxr_string">"Should return 2 strings for `bananabanan`: "</span> + tree.findAllOccurrences(<span class="jxr_string">"bananabanan"</span>).size());
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>          System.out.println(<span class="jxr_string">"Should return 2 strings for `bananabanana`: "</span> + tree.findAllOccurrences(<span class="jxr_string">"bananabanana"</span>).size());
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>          System.out.println(<span class="jxr_string">"Should return 1 string  for `bananabananab`:  "</span> + tree.findAllOccurrences(<span class="jxr_string">"bananabananab"</span>).size());
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>          System.out.println(((GenericUkkonenSuffixTree&lt;?&gt;) tree).prettyTreeString());
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>          System.out.println(<span class="jxr_string">"Total nodes count: "</span> + tree.nodesCount());
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>          System.out.println(<span class="jxr_string">"Values count: "</span> + tree.valuesCount());
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>          System.out.println(<span class="jxr_string">"Text size: "</span> + tree.textSize());
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>      }
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2023&#x2013;2026. All rights reserved.</div>
+</body>
+</html>

@@ -10,7 +10,7 @@ import java.util.Collection;
 public interface SuffixTree<T> {
 
     /**
-     * Returns teh values for each string matching the provided pattern.
+     * Returns the values for each string matching the provided pattern.
      *
      * @param pattern string
      * @return list of values

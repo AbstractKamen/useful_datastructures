@@ -34,8 +34,8 @@ public class SuffixTreeExample {
         System.out.println("Should return 1 string  for `bananabananab`:  " + tree.findAllOccurrences("bananabananab").size());
 
         System.out.println(((GenericUkkonenSuffixTree<?>) tree).prettyTreeString());
-        System.out.println("Total nodes count: "+ tree.nodesCount());
-        System.out.println("Values count: "+ tree.valuesCount());
-        System.out.println("Text size: "+ tree.textSize());
+        System.out.println("Total nodes count: " + tree.nodesCount());
+        System.out.println("Values count: " + tree.valuesCount());
+        System.out.println("Text size: " + tree.textSize());
     }
 }

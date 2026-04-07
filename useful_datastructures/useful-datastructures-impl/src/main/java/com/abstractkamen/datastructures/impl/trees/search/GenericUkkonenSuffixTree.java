@@ -1,3 +1,18 @@
+/**
+ * Copyright 2012 Alessandro Bahgat Shehata
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.abstractkamen.datastructures.impl.trees.search;
 
 import com.abstractkamen.datastructures.api.trees.search.SuffixTree;
@@ -7,25 +22,19 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.IdentityHashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
+import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * The Generic suffix tree implementation using Ukkonen's Algorithm
- * </p>Useful links:
+ * </p> Useful links:
  * <ul>
  *     <li><a href="https://www.cs.helsinki.fi/u/ukkonen/SuffixT1withFigs.pdf">Esko Ukkonen On–line construction of suffix trees</a></li>
- *     <li><a href="https://brenden.github.io/ukkonen-animation/">Ukkonen algorithm visualisation by Brenden Kokoszka</a></li>
+ *     <li><a href="https://github.com/abahgat/suffixtree">Good Implementation of generic suffix tree</a></li>
  *     <li><a href="https://en.wikipedia.org/wiki/Ukkonen's_algorithm">Ukkonen Algorithm Wiki</a></li>
+ *     <li><a href="https://brenden.github.io/ukkonen-animation/">Ukkonen algorithm visualisation by Brenden Kokoszka</a></li>
  *     <li><a href="https://www.baeldung.com/cs/ukkonens-suffix-tree-algorithm#bd-conclusion">Baeldung Ukkonen Algorithm Explanation</a></li>
  * </ul>
  *
@@ -34,35 +43,38 @@ import java.util.stream.Collectors;
  */
 public class GenericUkkonenSuffixTree<T> implements SuffixTree<T> {
 
-    // THE TERMINATOR
-    private static final char THE_TERMINATOR = '$';
-    private char[] text = {};
-    private final UkkonenSTNode root;
-    private int textSize;
-    private int nodesCount;
-    private final Map<Integer, List<T>> valueCache = new HashMap<>();
-    private final String toString;
+    private final UkkonenSTNode root = new UkkonenSTNode();
+
     /**
      * This thing will be empty after tree is constructed. Its purpose is to deduplicate similar lists of values for each node in the
      * post-processing phase.
      * <pre>
-     *     Node A → [1, 2, 3]
-     *     Node B → [1, 2, 3]
+     *     UkkonenSTNode A → [1, 2, 3]
+     *     UkkonenSTNode B → [1, 2, 3]
      *     // have both A and B -> [1, 2, 3] the same list and remove the other
      * </pre>
      */
-    private Map<Collection<Integer>, List<Integer>> valueKeysCanonicalizationCache = new HashMap<>();
+    private Map<Collection<Integer>, Collection<T>> valueKeysCanonicalizationCache = new HashMap<>();
+    /**
+     * Stores the T values for the tree during construction.
+     */
+    private Map<Integer, T> valueCache = new HashMap<>();
+    // metrics fields if we ever need them
+    private int textSize;
+    private int nodesCount;
+    private final String toString;
 
     /**
      * The only available constructor expects a list of {@link UkkonenSuffixTreeInput} without any null values.
      *
      * @param input list
      */
-    public GenericUkkonenSuffixTree(List<UkkonenSuffixTreeInput<T>> input) {
-        this.root = constructTree(input);
-        this.toString = String.format("GenericUkkonenSuffixTree[total-nodes-count=`%d`, text.length=`%d`, valueCache.size()=`%s`, nodesPerChar=`%.2f`, total-node-value-lists=`%d`]", nodesCount, textSize, valueCache.size(), (float) nodesCount / textSize, valueKeysCanonicalizationCache.size());
-        // dereference cache after it has served its purpose
-        valueKeysCanonicalizationCache = Collections.emptyMap();
+    public GenericUkkonenSuffixTree(Collection<UkkonenSuffixTreeInput<T>> input) {
+        constructTree(input);
+        this.toString = String.format("GenericUkkonenSuffixTree[total-nodes-count=`%d`, text.length=`%d`, valueCache.size()=`%s`, nodesPerChar=`%.2f`, total-node-value-lists=`%d`, total-values=`%d`]", nodesCount, textSize, valueCache.size(), (float) nodesCount / textSize, valueKeysCanonicalizationCache.size(), valueKeysCanonicalizationCache.values().stream().mapToInt(Collection::size).reduce(0, Integer::sum));
+        // dereference caches after tree is constructed
+        this.valueKeysCanonicalizationCache = Collections.emptyMap();
+        this.valueCache = Collections.emptyMap();
     }
 
     @Override
@@ -70,32 +82,8 @@ public class GenericUkkonenSuffixTree<T> implements SuffixTree<T> {
         if (pattern == null) return Collections.emptyList();
         final UkkonenSTNode node = findSuffixNode(pattern, this.root);
         if (this.root == node) return Collections.emptyList();
-
-        Set<Integer> allKeys = new HashSet<>();
-        collectSubtreeValues(node, allKeys);  // ← SIMPLE DFS
-
-        return allKeys.stream()
-                .flatMap(k -> valueCache.getOrDefault(k, Collections.emptyList()).stream())
-                .filter(Objects::nonNull)
-                .toList();
+        return node.actualValues;
     }
-
-    private void collectSubtreeValues(UkkonenSTNode node, Set<Integer> collector) {
-        collector.addAll(node.valueKeysInOrder);
-        for (UkkonenSTNode child : node.children.values()) {
-            collectSubtreeValues(child, collector);
-        }
-    }
-//    @Override
-//    public Collection<T> findAllOccurrences(String pattern) {
-//        if (pattern == null) return Collections.emptyList();
-//        final UkkonenSTNode node = findSuffixNode(pattern, this.root);
-//        if (this.root == node) return Collections.emptyList();
-//        return node.valueKeysInOrder.stream()
-//                .flatMap(k -> valueCache.getOrDefault(k, Collections.emptyList()).stream())
-//                .filter(Objects::nonNull)
-//                .toList();
-//    }
 
     @Override
     public boolean contains(String pattern) {
@@ -118,6 +106,11 @@ public class GenericUkkonenSuffixTree<T> implements SuffixTree<T> {
         return valueCache.size();
     }
 
+    @Override
+    public String toString() {
+        return toString;
+    }
+
     /**
      * This is purely for debugging
      *
@@ -134,21 +127,23 @@ public class GenericUkkonenSuffixTree<T> implements SuffixTree<T> {
                 for (var e : node.children.entrySet()) {
                     final UkkonenSTNode child = e.getValue();
                     int start = child.start;
-                    int end = Math.min(child.end, textSize);
+                    int end = child.end;
                     final StringBuilder sb = new StringBuilder("-".repeat(indent));
-                    for (int i = start; i < end; i++) sb.append(text[i]);
-                    sb.append("`").append(child.valueKeysInOrder.size()).append("`")
-                            .append(child.valueKeysInOrder);
+                    for (int i = start; i < end; i++) sb.append(child.source.charAt(i));
+                    final Collection<?> childSrc = child.keyIndexes.isEmpty() ? child.actualValues : child.keyIndexes;
+                    sb.append("`").append(childSrc.size()).append("`")
+                            .append(childSrc);
                     if (child.suffixLink != null) {
                         sb.append("->");
                         if (child.suffixLink == root) {
                             sb.append("[root]").append("`").append(0).append("`")
                                     .append("[]");
                         } else {
-                            final int suffixEnd = Math.min(child.suffixLink.end, textSize);
-                            for (int i = child.suffixLink.start; i < suffixEnd; i++) sb.append(text[i]);
-                            sb.append("`").append(child.suffixLink.valueKeysInOrder.size()).append("`")
-                                    .append(child.suffixLink.valueKeysInOrder);
+                            final int suffixEnd = child.suffixLink.end;
+                            for (int i = child.suffixLink.start; i < suffixEnd; i++) sb.append(child.suffixLink.source.charAt(i));
+                            final Collection<?> suffixSrc = child.keyIndexes.isEmpty() ? child.actualValues : child.keyIndexes;
+                            sb.append("`").append(suffixSrc.size()).append("`")
+                                    .append(suffixSrc);
                         }
                     }
                     sj.add(sb.toString());
@@ -161,179 +156,227 @@ public class GenericUkkonenSuffixTree<T> implements SuffixTree<T> {
         return sj.toString();
     }
 
-    @Override
-    public String toString() {
-        return toString;
+    private void constructTree(Collection<UkkonenSuffixTreeInput<T>> input) {
+        int index = 0;
+
+        final StringBuilder prefix = new StringBuilder();
+        for (UkkonenSuffixTreeInput<T> in : input) {
+            final String key = in.key();
+            final AtomicReference<UkkonenSTNode> activeLeaf = new AtomicReference<>(root);
+            UkkonenSTNode suffix = root;
+            valueCache.put(index, in.value());
+
+            for (int i = 0; i < key.length(); i++) {
+                int codePoint = key.codePointAt(i);
+                prefix.appendCodePoint(codePoint);
+
+                var activeNode = update(suffix, prefix.toString(), key, i, index, activeLeaf);
+                // deepest possible suffix
+                activeNode = canonize(activeNode.first(), activeNode.second());
+
+                suffix = activeNode.first();
+                prefix.setLength(0);
+                prefix.append(activeNode.second());
+
+                if (Character.isSupplementaryCodePoint(codePoint)) {
+                    i++;
+                }
+            }
+
+            // link leaves' suffixes
+            final UkkonenSTNode ref = activeLeaf.get();
+            if (ref.suffixLink == null && ref != root && ref != suffix) {
+                ref.suffixLink = suffix;
+            }
+            index++;
+        }
+        postProcessing(root);
     }
 
-    /**
-     * The node definition
-     */
-    private class UkkonenSTNode {
-        /**
-         * This set holds keys to values for the current node
-         */
-        Collection<Integer> valueKeysInOrder = new LinkedHashSet<>();
-        // ukkonen magic
-        int start;
-        final int end;
-        UkkonenSTNode suffixLink;
-        Map<Integer, UkkonenSTNode> children = new LinkedHashMap<>();
-
-        UkkonenSTNode(int start, int end) {
-            nodesCount++;
-            this.start = start;
-            this.end = end;
-        }
-
-        UkkonenSTNode(int start) {
-            this(start, Integer.MAX_VALUE);
-        }
-
-
-        /**
-         * Dereferences unused pointers and swaps mutable collections with immutable ones
-         */
-        void postProcess() {
-            // swap from set to list
-            valueKeysInOrder = valueKeysCanonicalizationCache.computeIfAbsent(valueKeysInOrder, List::copyOf);
-            children = Map.copyOf(children);
-            // not needed because tree is immutable
-            // this.suffixLink = null;
-        }
-    }
-
-    /*
-     * UKKONEN'S ALGORITHM
-     */
-    private UkkonenSTNode constructTree(List<UkkonenSuffixTreeInput<T>> input) {
-        UkkonenSTNode root = new UkkonenSTNode(-1, -1);
-        root.suffixLink = root;
-        final Map<String, List<T>> deduplicatedInput
-                = input.stream()
-//                .collect(Collectors.groupingBy(UkkonenSuffixTreeInput::key,
-                .collect(Collectors.groupingBy(UkkonenSuffixTreeInput::key, IdentityHashMap::new,
-                        Collectors.mapping(UkkonenSuffixTreeInput::value, Collectors.toList())));
+    private UkkonenSTNode findSuffixNode(String pattern, UkkonenSTNode root) {
+        final int patternLen = pattern.length();
+        UkkonenSTNode node = root;
         int i = 0;
-        int j = 0;
-        this.text = getText(deduplicatedInput.keySet()).toCharArray();
-        this.textSize = text.length;
-        int inputEndPos = 0;
-        final var it = deduplicatedInput.entrySet().iterator();
-        for (; i < deduplicatedInput.size(); ++i) {
-            var e = it.next();
-            final List<T> value = e.getValue();
-            inputEndPos += e.getKey().length() + 1 /*the terminator len*/;
-            // value storage
-            valueCache.put(i, value);
+        while (i < patternLen) {
+            final int key = pattern.codePointAt(i);
+            final UkkonenSTNode child = node.children.get(key);
+            if (child == null) {
+                return root;
+            }
+            int j = 0;
 
-            int activeEdge = -1;
-            int activeLength = 0;
-            int remainder = 0;
-            UkkonenSTNode activeLeaf = root;
-            UkkonenSTNode oldRoot = root;
+            while (j < child.length() && i < patternLen) {
+                final int textCodePoint = child.codePointAt(j);
+                final int patternCodePoint = pattern.codePointAt(i);
+                if (textCodePoint != patternCodePoint) {
+                    return root;
+                }
+                i += 1;
+                j += 1;
+            }
+            node = child;
+        }
+        return node;
+    }
 
-            for (; j < inputEndPos; ++j) {
-                remainder++;
-                UkkonenSTNode lastCreated = null;
-                while (remainder > 0) {
-                    if (activeLength == 0) {
-                        activeEdge = j;
-                    }
-                    int edgeChar = Character.codePointAt(this.text, activeEdge);
-                    UkkonenSTNode nextNode = oldRoot.children.get(edgeChar);
-                    if (nextNode == null) {
-                        UkkonenSTNode leaf = new UkkonenSTNode(j);
-                        leaf.valueKeysInOrder.add(i);
-                        oldRoot.children.put(edgeChar, leaf);
-                        if (lastCreated != null) {
-                            lastCreated.suffixLink = oldRoot;
-                            lastCreated = null;
-                        }
-                        if (activeLeaf != root) {
-                            activeLeaf.suffixLink = leaf;
-                        }
-                        activeLeaf = leaf;
-                    } else {
-                        if (activeLength >= edgeLength(nextNode, j)) {
-                            activeEdge += edgeLength(nextNode, j);
-                            activeLength -= edgeLength(nextNode, j);
-                            oldRoot = nextNode;
-                            continue;
-                        }
+    private Pair<Boolean, UkkonenSTNode> testAndSplit(UkkonenSTNode currentNode, String prefix, int t, String input, int index, int value) {
+        // find deepest
+        var canonized = canonize(currentNode, prefix);
+        UkkonenSTNode deepestSuffix = canonized.first();
+        String deepestSuffixString = canonized.second();
 
-                        if (Character.codePointAt(this.text, nextNode.start + activeLength) == Character.codePointAt(this.text, j)) {
-                            if (Character.codePointAt(this.text, j) == THE_TERMINATOR) {
-                                nextNode.valueKeysInOrder.add(i);
-                                nextNode.suffixLink = oldRoot;
-                            }
+        if (!deepestSuffixString.isEmpty()) {
+            UkkonenSTNode nextSuffix = deepestSuffix.children.get(deepestSuffixString.codePointAt(0));
+            // mismatch on current path
+            if (nextSuffix == null) {
+                return new Pair<>(false, deepestSuffix);
+            }
+            // check if deepest suffix still matches
+            if (nextSuffix.length() > deepestSuffixString.length() && nextSuffix.codePointAt(deepestSuffixString.length()) == t) {
+                return new Pair<>(true, deepestSuffix);
+            } else {
+                // build a new node
+                final UkkonenSTNode newNode = new UkkonenSTNode(deepestSuffixString);
+                // drop prefix of current node source string but keep original
+                nextSuffix.start += deepestSuffixString.length();
 
-                            activeLength++;
-                            if (lastCreated != null) {
-                                lastCreated.valueKeysInOrder.add(i);
-                                lastCreated.suffixLink = oldRoot;
-                            }
-                            break;
-                        }
-                        // split edge
-                        UkkonenSTNode split = new UkkonenSTNode(nextNode.start, nextNode.start + activeLength);
-                        oldRoot.children.put(edgeChar, split);
-                        UkkonenSTNode leaf = new UkkonenSTNode(j);
-                        leaf.valueKeysInOrder.add(i);
-                        if (activeLeaf != root) {
-                            activeLeaf.suffixLink = leaf;
-                        }
-                        activeLeaf = leaf;
-                        split.children.put(Character.codePointAt(text, j), leaf);
-                        nextNode.start += activeLength;
-                        split.children.put(Character.codePointAt(text, nextNode.start), nextNode);
+                // link s -> r
+                newNode.children.put(nextSuffix.codePointAt(0), nextSuffix);
+                deepestSuffix.children.put(deepestSuffixString.codePointAt(0), newNode);
 
-                        if (lastCreated != null) {
-                            lastCreated.suffixLink = split;
-                            updateSuffixLink(lastCreated, split, i);
-                        }
-                        lastCreated = split;
-                    }
+                return new Pair<>(false, newNode);
+            }
 
-                    remainder--;
-                    if (oldRoot == root && activeLength > 0) {
-                        activeLength -= 1;
-                        activeEdge = j - remainder + 1;
-                    } else {
-                        oldRoot = Optional.ofNullable(oldRoot.suffixLink).orElse(root);
-                    }
+        } else {
+            final UkkonenSTNode next = deepestSuffix.children.get(t);
+            if (next == null) {
+                // no path to deepestSuffix
+                return new Pair<>(false, deepestSuffix);
+            } else {
+                int remainder = input.length() - index;
+
+                if (remainder == next.length() && next.matches(input, index, remainder)) {
+                    // found a path just in time -> add current value to found
+                    next.addValue(value);
+                    return new Pair<>(true, deepestSuffix);
+                } else if (remainder > next.length() && next.matches(input, index, next.length())) {
+                    return new Pair<>(true, deepestSuffix);
+                } else if (next.length() > remainder && next.matches(input, index, remainder)) {
+                    // split current
+                    UkkonenSTNode newNode = new UkkonenSTNode(input, index, input.length());
+                    newNode.addValue(value);
+                    // drop prefix of current node source string but keep original
+                    next.start += remainder;
+                    newNode.children.put(next.codePointAt(0), next);
+                    deepestSuffix.children.put(t, newNode);
+
+                    return new Pair<>(false, deepestSuffix);
+                } else {
+                    // common string
+                    return new Pair<>(true, deepestSuffix);
                 }
             }
         }
-        postProcessing(root);
-        return root;
+
     }
 
-    private void updateSuffixLink(UkkonenSTNode source, UkkonenSTNode target, int currentValue) {
-        if (source.suffixLink != null && source.suffixLink != root) {
-//            source.suffixLink.valueKeysInOrder.add(currentValue);
-//            propagateValuesToSuffixLinks(source.suffixLink);
+    /**
+     * Finds the deepest possible path for given suffix and string
+     *
+     * @param suffix node
+     * @param str    string
+     * @return (deepestSuffix, deepestSuffixString)
+     */
+    private Pair<UkkonenSTNode, String> canonize(UkkonenSTNode suffix, String str) {
+
+        if (str.isEmpty()) return new Pair<>(suffix, str);
+
+        int i = 0;
+        UkkonenSTNode nextSuffix = suffix.children.get(str.codePointAt(i));
+        while (nextSuffix != null && (str.length() - i) >= nextSuffix.length()) {
+            i += nextSuffix.length();
+            suffix = nextSuffix;
+            if (i < str.length()) {
+                nextSuffix = suffix.children.get(str.codePointAt(i));
+            } else {
+                nextSuffix = null;
+            }
         }
-        source.suffixLink = target;
-        propagateValuesToSuffixLinks(source);
+
+        return new Pair<>(suffix, str.substring(i));
     }
 
-    private void propagateValuesToSuffixLinks(UkkonenSTNode n) {
-//        while (n.suffixLink != null && n.suffixLink != n) {
-//            n.suffixLink.valueKeysInOrder.addAll(n.valueKeysInOrder);
-//            n = n.suffixLink;
-//        }
-    }
+    private Pair<UkkonenSTNode, String> update(UkkonenSTNode suffix, String prefix, String input, int index, int value, AtomicReference<UkkonenSTNode> activeLeaf) {
+        String tempstr = prefix;
+        int newChar = prefix.codePointBefore(prefix.length());
 
-    private String getText(Set<String> input) {
-        final StringBuilder sb = new StringBuilder();
-        for (String in : input) {
-            sb.append(in).append(THE_TERMINATOR);
+        // oldr ← root; (end–point, r)
+        UkkonenSTNode oldroot = root;
+
+        // ← test–and–split(s,(k, i − 1), ti);
+        var ret = testAndSplit(suffix, prefix.substring(0, prefix.length() - Character.charCount(newChar)), newChar, input, index, value);
+
+        UkkonenSTNode transition = ret.second();
+        boolean endpoint = ret.first();
+
+        UkkonenSTNode leaf;
+        while (!endpoint) {
+            UkkonenSTNode path = transition.children.get(newChar);
+            if (path != null) {
+                // treat path as leave if present
+                leaf = path;
+                leaf.addValue(value);
+            } else {
+                // new leaf
+                leaf = new UkkonenSTNode(input, index, input.length());
+                leaf.addValue(value);
+                transition.children.put(newChar, leaf);
+            }
+
+            // link leaves
+            if (activeLeaf.get() != root) {
+                activeLeaf.get().suffixLink = leaf;
+            }
+            activeLeaf.set(leaf);
+
+            if (oldroot != root) {
+                oldroot.suffixLink = transition;
+            }
+
+            oldroot = transition;
+
+            if (suffix.suffixLink == null) {
+                // handle _|_
+                if (!tempstr.isEmpty()) {
+                    tempstr = tempstr.substring(Character.charCount(tempstr.codePointAt(0)));
+                }
+            } else {
+                final var canonized = canonize(suffix.suffixLink, dropLast(tempstr));
+                suffix = canonized.first();
+                tempstr = (canonized.second() + new String(Character.toChars(tempstr.codePointBefore(tempstr.length()))));
+            }
+            // (end–point, r) ← test–and–split(s,(k, i − 1), ti);
+            ret = testAndSplit(suffix, dropLast(tempstr), newChar, input, index, value);
+            transition = ret.second();
+            endpoint = ret.first();
+
         }
-        return sb.toString();
+
+        if (oldroot != root) {
+            oldroot.suffixLink = transition;
+        }
+
+        return new Pair<>(suffix, tempstr);
+    }
+
+    private String dropLast(String seq) {
+        if (seq.isEmpty()) return "";
+        final int charsCount = Character.charCount(seq.codePointBefore(seq.length()));
+        return seq.substring(0, seq.length() - charsCount);
     }
 
     private void postProcessing(UkkonenSTNode root) {
+        // dfs post order with stacks
         final Deque<UkkonenSTNode> itStack = new ArrayDeque<>(nodesCount);
         final Deque<UkkonenSTNode> postOrderStack = new ArrayDeque<>(nodesCount);
         postOrderStack.push(root);
@@ -350,62 +393,98 @@ public class GenericUkkonenSuffixTree<T> implements SuffixTree<T> {
             final UkkonenSTNode node = postOrderStack.pop();
             for (var child : node.children.values()) {
                 // parent holds all ids of children fo easy lookup
-                node.valueKeysInOrder.addAll(child.valueKeysInOrder);
+                node.keyIndexes.addAll(child.keyIndexes);
             }
+        }
 
-            /*
-             * "path compression" removing grand total of 5 nodes for 90k input... I keep it anyway
-             * GenericUkkonenSuffixTree[total-nodes-count=`2263933`, text.length=`2155112`, valueCache.size()=`92672`, nodesPerChar=`1.05`] Tree construction in  00:00:05.980
-             * GenericUkkonenSuffixTree[total-nodes-count=`2263928`, text.length=`2155112`, valueCache.size()=`92672`, nodesPerChar=`1.05`] Tree construction in  00:00:05.670
-             */
-            final var it = node.children.entrySet().iterator();
-            while (it.hasNext()) {
-                var entry = it.next();
-                if (entry.getKey() == THE_TERMINATOR) {
-                    nodesCount--;
-                    it.remove();
-                }
+        itStack.push(root);
+        while (!itStack.isEmpty()) {
+            final UkkonenSTNode node = itStack.pop();
+            for (UkkonenSTNode child : node.children.values()) {
+                itStack.push(child);
             }
             node.postProcess();
         }
-
-        // root doesn't need to hold values at all
-        root.valueKeysInOrder = Collections.emptyList();
-        root.suffixLink = null;
     }
 
-    private int edgeLength(UkkonenSTNode node, int i) {
-        return Math.min(node.end, i + 1) - node.start;
-    }
+    private record Pair<A, B>(A first, B second) {}
 
-    private UkkonenSTNode findSuffixNode(String pattern, UkkonenSTNode root) {
-        final int patternLen = pattern.length();
-        UkkonenSTNode node = root;
-        int i = 0;
-        while (i < patternLen) {
-            final int key = pattern.codePointAt(i);
-            final UkkonenSTNode child = node.children.get(key);
-            if (child == null) {
-                return root;
-            }
-            final int end = Math.min(child.end, this.textSize);
-            int j = child.start;
+    private class UkkonenSTNode {
 
-            while (j < end && i < patternLen) {
-                final int textCodePoint = Character.codePointAt(this.text, j);
-                final int patternCodePoint = pattern.codePointAt(i);
-                if (textCodePoint != patternCodePoint) {
-                    return root;
-                }
-                i += 1;
-                j += 1;
-            }
-            if (Character.isSupplementaryCodePoint(key)) {
-                i++;
-            }
-            node = child;
+        String source;
+        int start;
+        int end;
+
+        /**
+         * This collection holds the index of a key source. After tree is constructed it is mapped to actual input value.
+         */
+        Collection<Integer> keyIndexes = new TreeSet<>();
+        Map<Integer, UkkonenSTNode> children = new HashMap<>();
+        UkkonenSTNode suffixLink;
+        /**
+         * Upon tree construction this collection will hold actual values in input order
+         */
+        Collection<T> actualValues = Collections.emptyList();
+
+        UkkonenSTNode() {
+            // tree prop
+            nodesCount++;
         }
-        return node;
-    }
 
+        UkkonenSTNode(String label) {
+            this();
+            this.source = label;
+            this.start = 0;
+            this.end = label.length();
+        }
+
+        UkkonenSTNode(String source, int start, int end) {
+            this();
+            this.source = source;
+            this.start = start;
+            this.end = end;
+        }
+
+        int length() {
+            return end - start;
+        }
+
+        int codePointAt(int index) {
+            return source.codePointAt(start + index);
+        }
+
+        boolean matches(String other, int offset, int len) {
+            return source.regionMatches(start, other, offset, len);
+        }
+
+        boolean addValue(int index) {
+            if (!keyIndexes.add(index)) return false;
+            // propagate to suffix links
+            UkkonenSTNode currentLink = this.suffixLink;
+            while (currentLink != null) {
+                if (!currentLink.addValue(index)) break;
+
+                currentLink = currentLink.suffixLink;
+            }
+            return true;
+        }
+
+        /**
+         * Dereferences unused pointers and swaps mutable collections with immutable ones
+         */
+        void postProcess() {
+            this.children = Map.copyOf(children);
+            this.actualValues = valueKeysCanonicalizationCache.computeIfAbsent(keyIndexes,
+                    keys -> keys.stream().sorted()
+                            .map(valueCache::get)
+                            .toList());
+            this.keyIndexes = Collections.emptyList();
+            // not needed because tree is immutable
+            this.suffixLink = null;
+            if (this.source != null) {
+                // tree prop
+                textSize += this.source.length();
+            }
+        }
+    }
 }

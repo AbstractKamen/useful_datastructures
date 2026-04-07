@@ -54,6 +54,8 @@ public class GenericUkkonenSuffixTreeTest {
         }
     }
 
+    // WITH    Value List Deduplication Total input 17592 - GenericUkkonenSuffixTree[total-nodes-count=`11813`, text.length=`72215`, valueCache.size()=`17592`, nodesPerChar=`0.16`, total-node-value-lists=`6861`, total-values=`200736`] Tree construction in 00:00:00.705
+    // WITHOUT Value List Deduplication Total input 17592 - GenericUkkonenSuffixTree[total-nodes-count=`11813`, text.length=`72215`, valueCache.size()=`17592`, nodesPerChar=`0.16`, total-node-value-lists=`11813`, total-values=`210887`] Tree construction in 00:00:00.694
     @Test
     public void shakespear_word_search() {
         // arrange
@@ -188,7 +190,6 @@ public class GenericUkkonenSuffixTreeTest {
         assertTrue(tree.contains("a"));
         var matches = tree.findAllOccurrences("a");
 
-        // Both entries should be indexed separately
         assertEquals(2, matches.size());
         assertTrue(matches.contains("PLAYER_1"));
         assertTrue(matches.contains("PLAYER_2"));
@@ -203,7 +204,6 @@ public class GenericUkkonenSuffixTreeTest {
         );
         var tree = new GenericUkkonenSuffixTree<>(input);
 
-        // Tree is case-sensitive by design
         assertTrue(tree.contains("Messi"));
         assertTrue(tree.contains("messi"));
         assertTrue(tree.contains("MESSI"));
@@ -324,15 +324,12 @@ public class GenericUkkonenSuffixTreeTest {
         );
         var tree = new GenericUkkonenSuffixTree<>(input);
 
-        // English names
         assertTrue(tree.contains("messi"));
         assertTrue(tree.contains("ronaldo"));
 
-        // Bulgarian names
         assertTrue(tree.contains("Илия"));
         assertTrue(tree.contains("Кирил"));
 
-        // Verify locale separation
         assertTrue(tree.findAllOccurrences("messi").stream()
                 .allMatch(id -> id.startsWith("EN")));
         assertTrue(tree.findAllOccurrences("Илия").stream()
@@ -423,8 +420,59 @@ public class GenericUkkonenSuffixTreeTest {
         );
         var tree = new GenericUkkonenSuffixTree<>(input);
 
-        // Multiple queries should return consistent results
         assertEquals(tree.findAllOccurrences("test"), tree.findAllOccurrences("test"));
         assertEquals(tree.contains("test"), tree.contains("test"));
+    }
+    @Test
+    public void testUnicodeSupplementaryCharacters() {
+        var input = List.of(
+                new UkkonenSuffixTreeInput<>("Hello 😀 World", "EMOJI_1"),
+                new UkkonenSuffixTreeInput<>("Hello 😁 World", "EMOJI_2"),
+                new UkkonenSuffixTreeInput<>("Hello 😂😂", "EMOJI_3"),
+                new UkkonenSuffixTreeInput<>("🎉🎊🎈", "EMOJI_4"),
+                new UkkonenSuffixTreeInput<>("Hello 😀 World", "DUPLICATE_1")  // same key, different value
+        );
+        var tree = new GenericUkkonenSuffixTree<>(input);
+        System.out.println(tree.prettyTreeString());
+
+        assertEquals(2, tree.findAllOccurrences("😀").size());  // EMOJI_1, DUPLICATE_1
+        assertEquals(1, tree.findAllOccurrences("😁").size());  // EMOJI_2
+        assertEquals(1, tree.findAllOccurrences("😂").size());  // EMOJI_3
+
+        assertEquals(1, tree.findAllOccurrences("🎉").size());
+        assertEquals(1, tree.findAllOccurrences("🎉🎊🎈").size());
+
+        assertEquals(2, tree.findAllOccurrences("Hello 😀").size());
+        assertEquals(2, tree.findAllOccurrences("😀 World").size());
+        assertEquals(2, tree.findAllOccurrences("Hello 😀 World").size());
+
+        assertTrue(tree.contains("😀"));
+        assertTrue(tree.contains("😂😂"));
+        assertTrue(tree.contains("🎊🎈"));
+        assertFalse(tree.contains("😍"));
+
+        assertFalse(tree.contains("😀 World!"));
+
+        var helloEmojiWorld = tree.findAllOccurrences("Hello 😀 World");
+        assertEquals(2, helloEmojiWorld.size());
+        assertTrue(helloEmojiWorld.contains("EMOJI_1"));
+        assertTrue(helloEmojiWorld.contains("DUPLICATE_1"));
+
+    }
+    @Test
+    public void testUnicodeSupplementaryStress() {
+        var input = List.of(
+                new UkkonenSuffixTreeInput<>("Test 测试 😀 test", "MIXED_1"),
+                new UkkonenSuffixTreeInput<>("Илия 😀 Груев", "MIXED_2"),
+                new UkkonenSuffixTreeInput<>("🎉🎊🎈🎁🎀", "MIXED_3")
+        );
+        var tree = new GenericUkkonenSuffixTree<>(input);
+
+        assertTrue(tree.contains("😀"));
+        assertTrue(tree.contains("测试"));
+        assertTrue(tree.contains("Илия"));
+        assertTrue(tree.contains("🎉🎊"));
+
+        System.out.println(tree);
     }
 }

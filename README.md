@@ -16,3 +16,6 @@ some useful datastructure implementations
   - Pretty basic implementation of a Re'trie'val tree which can match prefixes.
 - SuffixTrie
   - A simple extension of the PrefixTrie which can also match suffixes at the cost of double the nodes. I'm working on a more advanced version.
+ 
+- SuffixTree
+  - UkkonenGenericSuffixTree implementation

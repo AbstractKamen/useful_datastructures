@@ -6,17 +6,18 @@ import com.abstractkamen.datastructures.impl.trees.search.UkkonenSuffixTreeInput
 
 import java.util.List;
 
-public class SuffixTreeExample {
+public class SuffixTreeDemo {
 
     public static void main(String[] args) {
         final var input = List.of(
-                new UkkonenSuffixTreeInput<>("banana", "A"),
-                new UkkonenSuffixTreeInput<>("bananabanana", "B"),
-                new UkkonenSuffixTreeInput<>("bananabananabanana", "C")
+                new UkkonenSuffixTreeInput<>("banana©Ĥǅ", "A"),
+                new UkkonenSuffixTreeInput<>("bananabanana©Ĥǅ", "B"),
+                new UkkonenSuffixTreeInput<>("bananabananabanana©Ĥǅ", "C")
         );
         final SuffixTree<String> tree = new GenericUkkonenSuffixTree<>(input);
 
         System.out.println("Should contain `banana`: " + tree.contains("banana"));
+        System.out.println("Should contain `Ĥǅ`: " + tree.contains("Ĥǅ"));
         System.out.println("Should contain `bananabanana`: " + tree.contains("bananabanana"));
         System.out.println("Should contain `bananabananabanana`: " + tree.contains("bananabananabanana"));
         System.out.println("Should return 3 strings for `b`: " + tree.findAllOccurrences("b").size());

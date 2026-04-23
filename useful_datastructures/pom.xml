@@ -46,6 +46,7 @@
         <javadoc.plugin.version>3.5.0</javadoc.plugin.version>
         <junit4.version>4.13.2</junit4.version>
         <useful-datastructures.api.version>1.0-SNAPSHOT</useful-datastructures.api.version>
+        <icu4j.version>78.3</icu4j.version>
     </properties>
 
     <modules>
@@ -55,6 +56,12 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.ibm.icu</groupId>
+                <artifactId>icu4j</artifactId>
+                <version>78.3</version>
+                <scope>compile</scope>
+            </dependency>
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>

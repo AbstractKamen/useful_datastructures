@@ -19,3 +19,4 @@ some useful datastructure implementations
  
 - SuffixTree
   - UkkonenGenericSuffixTree implementation
+  - UkkonenGenericByteArraySuffixTree implementation - need to run with `--add-exports java.base/jdk.internal.util=ALL-UNNAMED`

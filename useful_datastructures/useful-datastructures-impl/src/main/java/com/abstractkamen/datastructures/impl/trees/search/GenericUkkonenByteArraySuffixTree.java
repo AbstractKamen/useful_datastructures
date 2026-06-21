@@ -409,13 +409,9 @@ public class GenericUkkonenByteArraySuffixTree<T> implements ByteArraySuffixTree
   }
 
   private static byte[] dropLast(byte[] seq) {
-	return dropLastN(seq, 1);
-  }
-
-  private static byte[] dropLastN(byte[] seq, int n) {
 	if (seq.length == 0) return seq;
-	return ByteBuffer.wrap(new byte[seq.length - n])
-			.put(seq, 0, seq.length - n)
+	return ByteBuffer.wrap(new byte[seq.length - 1])
+			.put(seq, 0, seq.length - 1)
 			.array();
   }
 

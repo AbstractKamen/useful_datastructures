@@ -193,17 +193,10 @@ public class GenericUkkonenByteArraySuffixTree<T> implements ByteArraySuffixTree
 	  if (child == null) {
 		return root;
 	  }
-	  int j = 0;
-
-	  while (j < child.length() && i < patternLen) {
-		final byte textCodePoint = child.byteAt(j);
-		final byte patternCodePoint = pattern[i];
-		if (textCodePoint != patternCodePoint) {
-		  return root;
-		}
-		i += 1;
-		j += 1;
-	  }
+	  int len = Math.min(child.length(), patternLen - i);
+	  int mismatchI = ArraysSupport.mismatch(pattern, i, child.source, child.start, len);
+	  if (mismatchI >= 0) return root;
+	  i += len;
 	  node = child;
 	}
 	return node;
